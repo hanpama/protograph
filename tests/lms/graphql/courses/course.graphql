@@ -1,0 +1,153 @@
+# Package: courses
+# Service: CourseService
+
+type Course implements Node & Timestamped @loader @loader(key: "slug") @loader(key: "instructorId") {
+  id: ID!
+  title: String!
+  slug: String!
+  description: String!
+  shortDescription: String
+  thumbnailUrl: URL
+  instructorId: String! @internal
+  categoryId: String! @internal
+  price: Float!
+  currency: String!
+  isPublished: Boolean!
+  publishedAt: DateTime
+  duration: Int! # in minutes
+  level: CourseLevel!
+  language: String!
+  requirements: [String!]!
+  objectives: [String!]!
+  tags: [String!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  
+  # Relations (only backward references allowed)
+  instructor: User! @load(with: { id: "instructorId" })
+  category: Category! @load(with: { id: "categoryId" })
+  
+  # Computed fields
+  enrollmentCount: Int! @resolve
+  averageRating: Float! @resolve
+  completionRate: Float! @resolve
+}
+
+
+type CourseReview implements Timestamped @loader {
+  id: ID!
+  courseId: String! @internal
+  userId: String! @internal
+  rating: Int!
+  comment: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  
+  # Backward references only
+  course: Course! @load(with: { id: "courseId" })
+  user: User! @load(with: { id: "userId" })
+}
+
+enum CourseLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+type CourseConnection {
+  edges: [CourseEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type CourseEdge {
+  node: Course!
+  cursor: String!
+}
+
+# Course-related queries and mutations
+extend type Query {
+  course(id: ID, slug: String): Course
+  courses(
+    first: Int
+    after: String
+    last: Int
+    before: String
+    filter: CourseFilter
+  ): CourseConnection!
+}
+
+extend type Mutation {
+  createCourse(input: CreateCourseInput!): CreateCoursePayload!
+  updateCourse(input: UpdateCourseInput!): UpdateCoursePayload!
+  deleteCourse(id: ID!): DeleteCoursePayload!
+}
+
+# Input types
+input CourseFilter {
+  categoryId: ID
+  instructorId: ID
+  level: CourseLevel
+  isPublished: Boolean
+  priceRange: PriceRangeInput
+  tags: [String!]
+}
+
+input PriceRangeInput {
+  min: Float
+  max: Float
+}
+
+input CreateCourseInput {
+  title: String!
+  slug: String!
+  description: String!
+  shortDescription: String
+  categoryId: ID!
+  price: Float!
+  currency: String = "USD"
+  level: CourseLevel!
+  language: String = "en"
+  requirements: [String!]
+  objectives: [String!]
+  tags: [String!]
+}
+
+input UpdateCourseInput {
+  id: ID!
+  title: String
+  description: String
+  shortDescription: String
+  categoryId: ID
+  price: Float
+  level: CourseLevel
+  requirements: [String!]
+  objectives: [String!]
+  tags: [String!]
+  isPublished: Boolean
+}
+
+
+# Payload types
+type CreateCoursePayload {
+  course: Course
+  errors: [CourseError!]!
+}
+
+type UpdateCoursePayload {
+  course: Course
+  errors: [CourseError!]!
+}
+
+type DeleteCoursePayload {
+  deletedCourseId: ID
+  errors: [CourseError!]!
+}
+
+
+type CourseError implements Error {
+  message: String!
+  path: [String!]
+  field: String
+}

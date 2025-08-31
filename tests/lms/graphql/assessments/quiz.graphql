@@ -1,0 +1,187 @@
+# Package: assessments
+# Service: QuizService
+
+type Quiz implements Node & Timestamped @loader {
+  id: ID!
+  title: String!
+  description: String
+  instructions: String
+  timeLimit: Int # in minutes, null for unlimited
+  maxAttempts: Int # null for unlimited
+  passingScore: Float!
+  randomizeQuestions: Boolean!
+  showCorrectAnswers: Boolean!
+  allowReview: Boolean!
+  isPublished: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  
+  # Relations
+  questions: [Question!]! @resolve(with: { quizId: "id" })
+  
+  # Computed fields
+  questionCount: Int! @resolve
+  averageScore: Float! @resolve
+  completionRate: Float! @resolve
+}
+
+type Question @loader {
+  id: ID!
+  quizId: String! @internal
+  type: QuestionType!
+  question: String!
+  explanation: String
+  points: Float!
+  order: Int!
+  isRequired: Boolean!
+  options: [QuestionOption!]!
+  
+  quiz: Quiz! @load(with: { id: "quizId" })
+}
+
+type QuestionOption {
+  id: ID!
+  text: String!
+  isCorrect: Boolean!
+  explanation: String
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  MULTIPLE_SELECT
+  TRUE_FALSE
+  SHORT_ANSWER
+  ESSAY
+  FILL_IN_BLANK
+  MATCHING
+  ORDERING
+}
+
+type QuizConnection {
+  edges: [QuizEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type QuizEdge {
+  node: Quiz!
+  cursor: String!
+}
+
+# Extend QuizContent to add quiz relation
+extend type QuizContent {
+  quiz: Quiz! @load(with: { id: "quizId" })
+}
+
+# Quiz-related queries and mutations
+extend type Query {
+  quiz(id: ID!): Quiz
+  quizzes(
+    first: Int
+    after: String
+    last: Int
+    before: String
+  ): QuizConnection!
+}
+
+extend type Mutation {
+  createQuiz(input: CreateQuizInput!): CreateQuizPayload!
+  updateQuiz(input: UpdateQuizInput!): UpdateQuizPayload!
+  deleteQuiz(id: ID!): DeleteQuizPayload!
+  
+  createQuestion(input: CreateQuestionInput!): CreateQuestionPayload!
+  updateQuestion(input: UpdateQuestionInput!): UpdateQuestionPayload!
+  deleteQuestion(id: ID!): DeleteQuestionPayload!
+}
+
+# Input types
+input CreateQuizInput {
+  title: String!
+  description: String
+  instructions: String
+  timeLimit: Int
+  maxAttempts: Int
+  passingScore: Float!
+  randomizeQuestions: Boolean = false
+  showCorrectAnswers: Boolean = true
+  allowReview: Boolean = true
+}
+
+input UpdateQuizInput {
+  id: ID!
+  title: String
+  description: String
+  instructions: String
+  timeLimit: Int
+  maxAttempts: Int
+  passingScore: Float
+  randomizeQuestions: Boolean
+  showCorrectAnswers: Boolean
+  allowReview: Boolean
+  isPublished: Boolean
+}
+
+input CreateQuestionInput {
+  quizId: ID!
+  type: QuestionType!
+  question: String!
+  explanation: String
+  points: Float!
+  order: Int!
+  isRequired: Boolean = true
+  options: [QuestionOptionInput!]!
+}
+
+input UpdateQuestionInput {
+  id: ID!
+  type: QuestionType
+  question: String
+  explanation: String
+  points: Float
+  order: Int
+  isRequired: Boolean
+  options: [QuestionOptionInput!]
+}
+
+input QuestionOptionInput {
+  text: String!
+  isCorrect: Boolean!
+  explanation: String
+}
+
+# Payload types
+type CreateQuizPayload {
+  quiz: Quiz
+  errors: [QuizError!]!
+}
+
+type UpdateQuizPayload {
+  quiz: Quiz
+  errors: [QuizError!]!
+}
+
+type DeleteQuizPayload {
+  deletedQuizId: ID
+  errors: [QuizError!]!
+}
+
+type CreateQuestionPayload {
+  question: Question
+  errors: [QuizError!]!
+}
+
+type UpdateQuestionPayload {
+  question: Question
+  errors: [QuizError!]!
+}
+
+type DeleteQuestionPayload {
+  deletedQuestionId: ID
+  errors: [QuizError!]!
+}
+
+type QuizError implements Error {
+  message: String!
+  path: [String!]
+  field: String
+}

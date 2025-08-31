@@ -1,0 +1,25 @@
+# Same-file circular references are VALID in protograph
+
+type Category @loader {
+  id: ID!
+  name: String!
+  parentId: String @internal
+  
+  # ✅ Self-reference within same file is fine
+  parent: Category @load(with: { "id": "parentId" })
+  children: [Category!]! @resolve(with: { "parentId": "id" })
+}
+
+type Article @loader {
+  id: ID!
+  categoryId: String! @internal
+  
+  # ✅ Bidirectional within same file is fine
+  category: Category! @load(with: { "id": "categoryId" })
+}
+
+extend type Category {
+  articles: [Article!]! @resolve(with: { "categoryId": "id" })
+}
+
+# Cross-file cycles are tested in user.graphql and blog/post.graphql

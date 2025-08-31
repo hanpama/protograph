@@ -1,0 +1,26 @@
+schema { query: Query }
+
+type Query { node(id: ID!): Node }
+
+interface Node {
+  id: ID!
+}
+
+interface Resource implements Node {
+  id: ID!
+  size: Int!
+}
+
+type Image implements Resource & Node @loader(key: "id") {
+  id: ID! @id
+  size: Int!
+  url: String!
+}
+
+type Video implements Resource & Node @loader(key: "id") {
+  id: ID! @id
+  size: Int!
+  duration: Int!
+}
+
+union Media = Image | Video

@@ -1,0 +1,15 @@
+schema { query: Query }
+
+type Query { post(id: ID!): Post }
+
+type Post @loader {
+  id: ID! @id
+  authorId: ID!
+  # Error: @load fields cannot have arguments
+  author(includeDeleted: Boolean): User @load(with: { id: "authorId" })
+}
+
+type User @loader {
+  id: ID! @id
+  name: String!
+}

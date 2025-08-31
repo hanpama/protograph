@@ -1,0 +1,11 @@
+# File: blog/post.graphql  
+# Package: blog
+
+type Post @loader {
+  id: ID!
+  authorId: String! @internal
+  
+  # Creates dependency: blog → accounts
+  # Combined with User.posts → CYCLE: accounts ↔ blog
+  author: User! @load(with: { "id": "authorId" })
+}

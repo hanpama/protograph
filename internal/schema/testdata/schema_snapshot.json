@@ -1,0 +1,928 @@
+{
+  "QueryType": "Query",
+  "MutationType": "Mutation",
+  "SubscriptionType": "",
+  "Types": {
+    "Boolean": {
+      "Name": "Boolean",
+      "Kind": "SCALAR",
+      "Description": "The Boolean scalar type represents true or false.",
+      "Fields": null,
+      "Interfaces": null,
+      "PossibleTypes": null,
+      "EnumValues": null,
+      "InputFields": null,
+      "SpecifiedByURL": null,
+      "OneOf": false
+    },
+    "CreateUserInput": {
+      "Name": "CreateUserInput",
+      "Kind": "INPUT_OBJECT",
+      "Description": "",
+      "Fields": null,
+      "Interfaces": null,
+      "PossibleTypes": null,
+      "EnumValues": null,
+      "InputFields": [
+        {
+          "Name": "email",
+          "Description": "",
+          "Type": {
+            "Kind": "NON_NULL",
+            "OfType": {
+              "Kind": "NAMED",
+              "OfType": null,
+              "Named": "String"
+            },
+            "Named": ""
+          },
+          "DefaultValue": null,
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "name",
+          "Description": "",
+          "Type": {
+            "Kind": "NON_NULL",
+            "OfType": {
+              "Kind": "NAMED",
+              "OfType": null,
+              "Named": "String"
+            },
+            "Named": ""
+          },
+          "DefaultValue": null,
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "role",
+          "Description": "",
+          "Type": {
+            "Kind": "NAMED",
+            "OfType": null,
+            "Named": "UserRole"
+          },
+          "DefaultValue": "USER",
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        }
+      ],
+      "SpecifiedByURL": null,
+      "OneOf": false
+    },
+    "DateTime": {
+      "Name": "DateTime",
+      "Kind": "SCALAR",
+      "Description": "",
+      "Fields": null,
+      "Interfaces": null,
+      "PossibleTypes": null,
+      "EnumValues": null,
+      "InputFields": null,
+      "SpecifiedByURL": null,
+      "OneOf": false
+    },
+    "ExtendedFilter": {
+      "Name": "ExtendedFilter",
+      "Kind": "INPUT_OBJECT",
+      "Description": "",
+      "Fields": null,
+      "Interfaces": null,
+      "PossibleTypes": null,
+      "EnumValues": null,
+      "InputFields": [
+        {
+          "Name": "keyword",
+          "Description": "",
+          "Type": {
+            "Kind": "NAMED",
+            "OfType": null,
+            "Named": "String"
+          },
+          "DefaultValue": null,
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "priority",
+          "Description": "",
+          "Type": {
+            "Kind": "NAMED",
+            "OfType": null,
+            "Named": "Priority"
+          },
+          "DefaultValue": null,
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "status",
+          "Description": "",
+          "Type": {
+            "Kind": "NAMED",
+            "OfType": null,
+            "Named": "ExtensionStatus"
+          },
+          "DefaultValue": null,
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        }
+      ],
+      "SpecifiedByURL": null,
+      "OneOf": false
+    },
+    "ExtensionStatus": {
+      "Name": "ExtensionStatus",
+      "Kind": "ENUM",
+      "Description": "",
+      "Fields": null,
+      "Interfaces": null,
+      "PossibleTypes": null,
+      "EnumValues": [
+        {
+          "Name": "DISABLED",
+          "Description": "",
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "ENABLED",
+          "Description": "",
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "PENDING",
+          "Description": "",
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        }
+      ],
+      "InputFields": null,
+      "SpecifiedByURL": null,
+      "OneOf": false
+    },
+    "Float": {
+      "Name": "Float",
+      "Kind": "SCALAR",
+      "Description": "The Float scalar type represents signed double-precision fractional values.",
+      "Fields": null,
+      "Interfaces": null,
+      "PossibleTypes": null,
+      "EnumValues": null,
+      "InputFields": null,
+      "SpecifiedByURL": null,
+      "OneOf": false
+    },
+    "ID": {
+      "Name": "ID",
+      "Kind": "SCALAR",
+      "Description": "The ID scalar type represents a unique identifier, often used to refetch an object or as a key for caching.",
+      "Fields": null,
+      "Interfaces": null,
+      "PossibleTypes": null,
+      "EnumValues": null,
+      "InputFields": null,
+      "SpecifiedByURL": null,
+      "OneOf": false
+    },
+    "Int": {
+      "Name": "Int",
+      "Kind": "SCALAR",
+      "Description": "The Int scalar type represents non-fractional signed whole numeric values.",
+      "Fields": null,
+      "Interfaces": null,
+      "PossibleTypes": null,
+      "EnumValues": null,
+      "InputFields": null,
+      "SpecifiedByURL": null,
+      "OneOf": false
+    },
+    "JSON": {
+      "Name": "JSON",
+      "Kind": "SCALAR",
+      "Description": "",
+      "Fields": null,
+      "Interfaces": null,
+      "PossibleTypes": null,
+      "EnumValues": null,
+      "InputFields": null,
+      "SpecifiedByURL": null,
+      "OneOf": false
+    },
+    "Mutation": {
+      "Name": "Mutation",
+      "Kind": "OBJECT",
+      "Description": "",
+      "Fields": [
+        {
+          "Name": "createUser",
+          "Description": "",
+          "Type": {
+            "Kind": "NON_NULL",
+            "OfType": {
+              "Kind": "NAMED",
+              "OfType": null,
+              "Named": "User"
+            },
+            "Named": ""
+          },
+          "Arguments": [
+            {
+              "Name": "input",
+              "Description": "",
+              "Type": {
+                "Kind": "NON_NULL",
+                "OfType": {
+                  "Kind": "NAMED",
+                  "OfType": null,
+                  "Named": "CreateUserInput"
+                },
+                "Named": ""
+              },
+              "DefaultValue": null,
+              "IsDeprecated": false,
+              "DeprecationReason": ""
+            }
+          ],
+          "Async": true,
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "updateUserBio",
+          "Description": "",
+          "Type": {
+            "Kind": "NAMED",
+            "OfType": null,
+            "Named": "Boolean"
+          },
+          "Arguments": [
+            {
+              "Name": "bio",
+              "Description": "",
+              "Type": {
+                "Kind": "NON_NULL",
+                "OfType": {
+                  "Kind": "NAMED",
+                  "OfType": null,
+                  "Named": "String"
+                },
+                "Named": ""
+              },
+              "DefaultValue": null,
+              "IsDeprecated": false,
+              "DeprecationReason": ""
+            },
+            {
+              "Name": "userId",
+              "Description": "",
+              "Type": {
+                "Kind": "NON_NULL",
+                "OfType": {
+                  "Kind": "NAMED",
+                  "OfType": null,
+                  "Named": "ID"
+                },
+                "Named": ""
+              },
+              "DefaultValue": null,
+              "IsDeprecated": false,
+              "DeprecationReason": ""
+            }
+          ],
+          "Async": true,
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        }
+      ],
+      "Interfaces": null,
+      "PossibleTypes": null,
+      "EnumValues": null,
+      "InputFields": null,
+      "SpecifiedByURL": null,
+      "OneOf": false
+    },
+    "Node": {
+      "Name": "Node",
+      "Kind": "INTERFACE",
+      "Description": "",
+      "Fields": [
+        {
+          "Name": "id",
+          "Description": "",
+          "Type": {
+            "Kind": "NON_NULL",
+            "OfType": {
+              "Kind": "NAMED",
+              "OfType": null,
+              "Named": "ID"
+            },
+            "Named": ""
+          },
+          "Arguments": null,
+          "Async": true,
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        }
+      ],
+      "Interfaces": null,
+      "PossibleTypes": null,
+      "EnumValues": null,
+      "InputFields": null,
+      "SpecifiedByURL": null,
+      "OneOf": false
+    },
+    "Priority": {
+      "Name": "Priority",
+      "Kind": "ENUM",
+      "Description": "",
+      "Fields": null,
+      "Interfaces": null,
+      "PossibleTypes": null,
+      "EnumValues": [
+        {
+          "Name": "HIGH",
+          "Description": "",
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "LOW",
+          "Description": "",
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "MEDIUM",
+          "Description": "",
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "URGENT",
+          "Description": "",
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        }
+      ],
+      "InputFields": null,
+      "SpecifiedByURL": null,
+      "OneOf": false
+    },
+    "Query": {
+      "Name": "Query",
+      "Kind": "OBJECT",
+      "Description": "",
+      "Fields": [
+        {
+          "Name": "getExtendedInfo",
+          "Description": "",
+          "Type": {
+            "Kind": "NAMED",
+            "OfType": null,
+            "Named": "String"
+          },
+          "Arguments": null,
+          "Async": true,
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "getUser",
+          "Description": "",
+          "Type": {
+            "Kind": "NAMED",
+            "OfType": null,
+            "Named": "User"
+          },
+          "Arguments": [
+            {
+              "Name": "id",
+              "Description": "",
+              "Type": {
+                "Kind": "NON_NULL",
+                "OfType": {
+                  "Kind": "NAMED",
+                  "OfType": null,
+                  "Named": "ID"
+                },
+                "Named": ""
+              },
+              "DefaultValue": null,
+              "IsDeprecated": false,
+              "DeprecationReason": ""
+            }
+          ],
+          "Async": true,
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "listActiveUsers",
+          "Description": "",
+          "Type": {
+            "Kind": "NON_NULL",
+            "OfType": {
+              "Kind": "LIST",
+              "OfType": {
+                "Kind": "NON_NULL",
+                "OfType": {
+                  "Kind": "NAMED",
+                  "OfType": null,
+                  "Named": "User"
+                },
+                "Named": ""
+              },
+              "Named": ""
+            },
+            "Named": ""
+          },
+          "Arguments": null,
+          "Async": true,
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "listUsers",
+          "Description": "",
+          "Type": {
+            "Kind": "NON_NULL",
+            "OfType": {
+              "Kind": "LIST",
+              "OfType": {
+                "Kind": "NON_NULL",
+                "OfType": {
+                  "Kind": "NAMED",
+                  "OfType": null,
+                  "Named": "User"
+                },
+                "Named": ""
+              },
+              "Named": ""
+            },
+            "Named": ""
+          },
+          "Arguments": null,
+          "Async": true,
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "node",
+          "Description": "",
+          "Type": {
+            "Kind": "NAMED",
+            "OfType": null,
+            "Named": "Node"
+          },
+          "Arguments": [
+            {
+              "Name": "id",
+              "Description": "",
+              "Type": {
+                "Kind": "NON_NULL",
+                "OfType": {
+                  "Kind": "NAMED",
+                  "OfType": null,
+                  "Named": "ID"
+                },
+                "Named": ""
+              },
+              "DefaultValue": null,
+              "IsDeprecated": false,
+              "DeprecationReason": ""
+            }
+          ],
+          "Async": true,
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        }
+      ],
+      "Interfaces": null,
+      "PossibleTypes": null,
+      "EnumValues": null,
+      "InputFields": null,
+      "SpecifiedByURL": null,
+      "OneOf": false
+    },
+    "SearchResult": {
+      "Name": "SearchResult",
+      "Kind": "UNION",
+      "Description": "",
+      "Fields": null,
+      "Interfaces": null,
+      "PossibleTypes": [
+        "User"
+      ],
+      "EnumValues": null,
+      "InputFields": null,
+      "SpecifiedByURL": null,
+      "OneOf": false
+    },
+    "String": {
+      "Name": "String",
+      "Kind": "SCALAR",
+      "Description": "The String scalar type represents textual data, represented as UTF-8 character sequences.",
+      "Fields": null,
+      "Interfaces": null,
+      "PossibleTypes": null,
+      "EnumValues": null,
+      "InputFields": null,
+      "SpecifiedByURL": null,
+      "OneOf": false
+    },
+    "Timestamped": {
+      "Name": "Timestamped",
+      "Kind": "INTERFACE",
+      "Description": "",
+      "Fields": [
+        {
+          "Name": "createdAt",
+          "Description": "",
+          "Type": {
+            "Kind": "NON_NULL",
+            "OfType": {
+              "Kind": "NAMED",
+              "OfType": null,
+              "Named": "DateTime"
+            },
+            "Named": ""
+          },
+          "Arguments": null,
+          "Async": true,
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "deletedAt",
+          "Description": "",
+          "Type": {
+            "Kind": "NAMED",
+            "OfType": null,
+            "Named": "DateTime"
+          },
+          "Arguments": null,
+          "Async": true,
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "updatedAt",
+          "Description": "",
+          "Type": {
+            "Kind": "NAMED",
+            "OfType": null,
+            "Named": "DateTime"
+          },
+          "Arguments": null,
+          "Async": true,
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        }
+      ],
+      "Interfaces": null,
+      "PossibleTypes": null,
+      "EnumValues": null,
+      "InputFields": null,
+      "SpecifiedByURL": null,
+      "OneOf": false
+    },
+    "URL": {
+      "Name": "URL",
+      "Kind": "SCALAR",
+      "Description": "",
+      "Fields": null,
+      "Interfaces": null,
+      "PossibleTypes": null,
+      "EnumValues": null,
+      "InputFields": null,
+      "SpecifiedByURL": null,
+      "OneOf": false
+    },
+    "User": {
+      "Name": "User",
+      "Kind": "OBJECT",
+      "Description": "",
+      "Fields": [
+        {
+          "Name": "bio",
+          "Description": "",
+          "Type": {
+            "Kind": "NAMED",
+            "OfType": null,
+            "Named": "JSON"
+          },
+          "Arguments": null,
+          "Async": true,
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "createdAt",
+          "Description": "",
+          "Type": {
+            "Kind": "NON_NULL",
+            "OfType": {
+              "Kind": "NAMED",
+              "OfType": null,
+              "Named": "DateTime"
+            },
+            "Named": ""
+          },
+          "Arguments": null,
+          "Async": false,
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "deletedAt",
+          "Description": "",
+          "Type": {
+            "Kind": "NAMED",
+            "OfType": null,
+            "Named": "DateTime"
+          },
+          "Arguments": null,
+          "Async": true,
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "email",
+          "Description": "",
+          "Type": {
+            "Kind": "NON_NULL",
+            "OfType": {
+              "Kind": "NAMED",
+              "OfType": null,
+              "Named": "String"
+            },
+            "Named": ""
+          },
+          "Arguments": null,
+          "Async": false,
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "id",
+          "Description": "",
+          "Type": {
+            "Kind": "NON_NULL",
+            "OfType": {
+              "Kind": "NAMED",
+              "OfType": null,
+              "Named": "ID"
+            },
+            "Named": ""
+          },
+          "Arguments": null,
+          "Async": false,
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "isExtended",
+          "Description": "",
+          "Type": {
+            "Kind": "NAMED",
+            "OfType": null,
+            "Named": "Boolean"
+          },
+          "Arguments": null,
+          "Async": true,
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "lastLoginAt",
+          "Description": "",
+          "Type": {
+            "Kind": "NAMED",
+            "OfType": null,
+            "Named": "DateTime"
+          },
+          "Arguments": null,
+          "Async": true,
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "name",
+          "Description": "",
+          "Type": {
+            "Kind": "NON_NULL",
+            "OfType": {
+              "Kind": "NAMED",
+              "OfType": null,
+              "Named": "String"
+            },
+            "Named": ""
+          },
+          "Arguments": null,
+          "Async": false,
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "role",
+          "Description": "",
+          "Type": {
+            "Kind": "NON_NULL",
+            "OfType": {
+              "Kind": "NAMED",
+              "OfType": null,
+              "Named": "UserRole"
+            },
+            "Named": ""
+          },
+          "Arguments": null,
+          "Async": false,
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "status",
+          "Description": "",
+          "Type": {
+            "Kind": "NON_NULL",
+            "OfType": {
+              "Kind": "NAMED",
+              "OfType": null,
+              "Named": "UserStatus"
+            },
+            "Named": ""
+          },
+          "Arguments": null,
+          "Async": false,
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "updatedAt",
+          "Description": "",
+          "Type": {
+            "Kind": "NAMED",
+            "OfType": null,
+            "Named": "DateTime"
+          },
+          "Arguments": null,
+          "Async": false,
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        }
+      ],
+      "Interfaces": [
+        "Node",
+        "Timestamped"
+      ],
+      "PossibleTypes": null,
+      "EnumValues": null,
+      "InputFields": null,
+      "SpecifiedByURL": null,
+      "OneOf": false
+    },
+    "UserRole": {
+      "Name": "UserRole",
+      "Kind": "ENUM",
+      "Description": "",
+      "Fields": null,
+      "Interfaces": null,
+      "PossibleTypes": null,
+      "EnumValues": [
+        {
+          "Name": "ADMIN",
+          "Description": "",
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "AUTHOR",
+          "Description": "",
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "EDITOR",
+          "Description": "",
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "GUEST",
+          "Description": "",
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "MODERATOR",
+          "Description": "",
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "USER",
+          "Description": "",
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        }
+      ],
+      "InputFields": null,
+      "SpecifiedByURL": null,
+      "OneOf": false
+    },
+    "UserStatus": {
+      "Name": "UserStatus",
+      "Kind": "ENUM",
+      "Description": "",
+      "Fields": null,
+      "Interfaces": null,
+      "PossibleTypes": null,
+      "EnumValues": [
+        {
+          "Name": "ACTIVE",
+          "Description": "",
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "INACTIVE",
+          "Description": "",
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        },
+        {
+          "Name": "SUSPENDED",
+          "Description": "",
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        }
+      ],
+      "InputFields": null,
+      "SpecifiedByURL": null,
+      "OneOf": false
+    }
+  },
+  "Directives": {
+    "include": {
+      "Name": "include",
+      "Description": "Directs the executor to include this field or fragment only when the `if` argument is true.",
+      "Locations": [
+        "FIELD",
+        "FRAGMENT_SPREAD",
+        "INLINE_FRAGMENT"
+      ],
+      "Arguments": [
+        {
+          "Name": "if",
+          "Description": "Included when true.",
+          "Type": {
+            "Kind": "NON_NULL",
+            "OfType": {
+              "Kind": "NAMED",
+              "OfType": null,
+              "Named": "Boolean"
+            },
+            "Named": ""
+          },
+          "DefaultValue": null,
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        }
+      ],
+      "IsRepeatable": false
+    },
+    "skip": {
+      "Name": "skip",
+      "Description": "Directs the executor to skip this field or fragment when the `if` argument is true.",
+      "Locations": [
+        "FIELD",
+        "FRAGMENT_SPREAD",
+        "INLINE_FRAGMENT"
+      ],
+      "Arguments": [
+        {
+          "Name": "if",
+          "Description": "Skipped when true.",
+          "Type": {
+            "Kind": "NON_NULL",
+            "OfType": {
+              "Kind": "NAMED",
+              "OfType": null,
+              "Named": "Boolean"
+            },
+            "Named": ""
+          },
+          "DefaultValue": null,
+          "IsDeprecated": false,
+          "DeprecationReason": ""
+        }
+      ],
+      "IsRepeatable": false
+    }
+  },
+  "Description": ""
+}

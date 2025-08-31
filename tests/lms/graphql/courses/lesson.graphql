@@ -1,0 +1,173 @@
+# Package: courses
+# Service: LessonService
+
+type Lesson implements Node & Timestamped @loader @loader(key: "courseId") {
+  id: ID!
+  title: String!
+  description: String
+  courseId: String! @internal
+  order: Int!
+  type: LessonType!
+  content: LessonContent!
+  duration: Int! # in minutes
+  isPublished: Boolean!
+  isFree: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  
+  # Relations (only backward references)
+  course: Course! @load(with: { id: "courseId" })
+  
+  # Previous/Next lessons in course
+  previousLesson: Lesson @resolve
+  nextLesson: Lesson @resolve
+}
+
+union LessonContent = VideoContent | TextContent | QuizContent | AssignmentContent
+
+type VideoContent {
+  videoUrl: URL!
+  duration: Int!
+  subtitles: [Subtitle!]!
+  transcript: String
+}
+
+type TextContent {
+  markdown: String!
+  readingTime: Int!
+}
+
+type QuizContent {
+  quizId: String!
+  # Forward reference to Quiz will be resolved via @resolve
+}
+
+type AssignmentContent {
+  instructions: String!
+  submissionFormat: SubmissionFormat!
+  maxFileSize: Int
+  allowedFileTypes: [String!]!
+}
+
+type Subtitle {
+  language: String!
+  url: URL!
+}
+
+enum LessonType {
+  VIDEO
+  TEXT
+  QUIZ
+  ASSIGNMENT
+  LIVE_SESSION
+}
+
+enum SubmissionFormat {
+  TEXT
+  FILE
+  URL
+  CODE
+}
+
+# Extend Course type to add lessons relation
+extend type Course {
+  lessons: [Lesson!]! @load(with: { courseId: "id" })
+}
+
+# Lesson-related queries and mutations
+extend type Query {
+  lesson(id: ID!): Lesson
+  lessonsForCourse(courseId: ID!): [Lesson!]!
+}
+
+extend type Mutation {
+  createLesson(input: CreateLessonInput!): CreateLessonPayload!
+  updateLesson(input: UpdateLessonInput!): UpdateLessonPayload!
+  deleteLesson(id: ID!): DeleteLessonPayload!
+  reorderLessons(courseId: ID!, lessonIds: [ID!]!): ReorderLessonsPayload!
+}
+
+# Input types
+input CreateLessonInput {
+  title: String!
+  description: String
+  courseId: ID!
+  order: Int!
+  type: LessonType!
+  content: LessonContentInput!
+  duration: Int!
+  isFree: Boolean = false
+}
+
+input UpdateLessonInput {
+  id: ID!
+  title: String
+  description: String
+  order: Int
+  content: LessonContentInput
+  duration: Int
+  isFree: Boolean
+  isPublished: Boolean
+}
+
+input LessonContentInput {
+  video: VideoContentInput
+  text: TextContentInput
+  quiz: QuizContentInput
+  assignment: AssignmentContentInput
+}
+
+input VideoContentInput {
+  videoUrl: URL!
+  duration: Int!
+  subtitles: [SubtitleInput!]!
+  transcript: String
+}
+
+input TextContentInput {
+  markdown: String!
+  readingTime: Int!
+}
+
+input QuizContentInput {
+  quizId: String!
+}
+
+input AssignmentContentInput {
+  instructions: String!
+  submissionFormat: SubmissionFormat!
+  maxFileSize: Int
+  allowedFileTypes: [String!]!
+}
+
+input SubtitleInput {
+  language: String!
+  url: URL!
+}
+
+# Payload types
+type CreateLessonPayload {
+  lesson: Lesson
+  errors: [LessonError!]!
+}
+
+type UpdateLessonPayload {
+  lesson: Lesson
+  errors: [LessonError!]!
+}
+
+type DeleteLessonPayload {
+  deletedLessonId: ID
+  errors: [LessonError!]!
+}
+
+type ReorderLessonsPayload {
+  lessons: [Lesson!]
+  errors: [LessonError!]!
+}
+
+type LessonError implements Error {
+  message: String!
+  path: [String!]
+  field: String
+}

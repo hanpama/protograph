@@ -1,0 +1,9 @@
+schema { query: Query }
+
+type Query { order(id: ID!): Order }
+
+type Order @loader(keys: ["storeId", "orderId"]) {
+  storeId: String! @id
+  orderId: String! @id
+  total: Int!
+}

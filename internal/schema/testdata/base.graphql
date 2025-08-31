@@ -1,0 +1,63 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  getUser(id: ID!): User
+  listUsers: [User!]!
+  node(id: ID!): Node
+}
+
+type Mutation {
+  createUser(input: CreateUserInput!): User!
+}
+
+# Interfaces
+interface Node {
+  id: ID!
+}
+
+interface Timestamped {
+  createdAt: DateTime!
+  updatedAt: DateTime
+}
+
+# Base object types - no external dependencies
+type User implements Node & Timestamped @loader {
+  id: ID!
+  name: String!
+  email: String!
+  role: UserRole!
+  status: UserStatus!
+  createdAt: DateTime!
+  updatedAt: DateTime
+}
+
+# Base enums
+enum UserRole {
+  ADMIN
+  MODERATOR
+  USER
+  GUEST @deprecated(reason: "Use USER instead")
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+# Base union
+union SearchResult = User
+
+# Input types
+input CreateUserInput {
+  name: String!
+  email: String!
+  role: UserRole = USER
+}
+
+# Custom scalars
+scalar DateTime @mapScalar(toProtobuf: "string")
+scalar JSON @mapScalar(toProtobuf: "string")

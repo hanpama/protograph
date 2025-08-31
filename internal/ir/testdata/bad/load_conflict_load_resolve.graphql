@@ -1,0 +1,11 @@
+schema { query: Query }
+
+type Query { post(id: ID!): Post }
+
+type Post @loader(key: "id") {
+  id: ID! @id
+  authorId: ID!
+  author: User @load(with: { id: "authorId" }) @resolve(with: { id: "authorId" }) # error: both directives
+}
+
+type User @loader(key: "id") { id: ID! @id name: String! }

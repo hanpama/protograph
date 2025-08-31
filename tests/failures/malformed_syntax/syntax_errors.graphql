@@ -1,0 +1,32 @@
+# This file contains various syntax errors for testing parser robustness
+
+# Missing closing brace
+type User {
+  id: ID!
+  name: String!
+# } # Missing brace
+
+# Invalid directive syntax  
+type Post @loader(key: "id", invalid: true {
+  id: ID!
+}
+
+# Missing type after colon
+type Comment {
+  id: # Missing type
+  content: String!
+}
+
+# Invalid enum value (cannot start with number)
+enum Status {
+  ACTIVE
+  INVALID_123  # Fixed: moved number to end
+  DELETED
+}
+
+# Duplicate field names (intentionally invalid)
+type Product {
+  id: ID!
+  name: String!
+  name: Int!  # Duplicate field name
+}

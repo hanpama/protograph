@@ -1,0 +1,96 @@
+# Simple test schema for basic analyzer functionality
+
+type Query {
+  """
+  Fetch a user by ID.
+  """
+  user(id: ID!): User @resolve
+  users: [User!]! @resolve
+}
+
+type Mutation {
+  createUser(input: CreateUserInput!): User! @resolve
+  updateUser(id: ID!, input: UpdateUserInput!): User! @resolve
+  deleteUser(id: ID!): Boolean! @resolve
+}
+
+type User @loader @loader(key: "email") {
+  id: ID!
+  email: String!
+  name: String!
+  age: Int
+  isActive: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  
+  # Internal field for relationship mapping
+  organizationId: ID @internal
+  
+  # Relationships
+  organization: Organization @load(with: {id: "organizationId"})
+  posts: [Post!]! @resolve(with: {authorId: "id"})
+  profile: Profile @load(with: {userId: "id"})
+}
+
+type Organization @loader {
+  id: ID!
+  name: String!
+  description: String
+  
+  # Resolved field with custom logic
+  memberCount: Int! @resolve
+  
+  # Relationship using resolver (many relation)
+  members: [User!]! @resolve(with: {organizationId: "id"})
+}
+
+type Post @loader {
+  id: ID!
+  title: String!
+  content: String!
+  published: Boolean!
+  authorId: ID! @internal
+  
+  author: User! @load(with: {id: "authorId"})
+  comments: [Comment!]! @resolve(with: {postId: "id"})
+}
+
+type Comment @loader {
+  id: ID!
+  content: String!
+  postId: ID! @internal
+  authorId: ID! @internal
+  
+  post: Post! @load(with: {id: "postId"})
+  author: User! @load(with: {id: "authorId"})
+}
+
+type Profile @loader(key: "userId") {
+  id: ID!
+  userId: ID! @internal
+  bio: String
+  avatarUrl: String
+  
+  user: User! @load(with: {id: "userId"})
+}
+
+# Input types for mutations
+input CreateUserInput {
+  email: String!
+  name: String!
+  age: Int
+  organizationId: ID
+}
+
+input UpdateUserInput {
+  email: String
+  name: String
+  age: Int
+  isActive: Boolean
+}
+
+# Custom scalar with mapping
+"""
+DateTime represents a date and time in ISO 8601 format.
+"""
+scalar DateTime @mapScalar(toProtobuf: "string")

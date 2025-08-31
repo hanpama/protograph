@@ -1,0 +1,39 @@
+# Base types and scalars used across the LMS
+
+scalar DateTime @mapScalar(toProtobuf: "string")
+scalar JSON @mapScalar(toProtobuf: "string")
+scalar URL @mapScalar(toProtobuf: "string")
+
+interface Node {
+  id: ID!
+}
+
+interface Timestamped {
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+# Root types (to be extended by other modules)
+type Query {
+  # Global node query for Relay
+  node(id: ID!): Node
+  nodes(ids: [ID!]!): [Node]!
+}
+
+type Mutation {
+  # Placeholder field - will be extended by other modules
+  _empty: String
+}
+
+# Common error interface
+interface Error {
+  message: String!
+  path: [String!]
+}

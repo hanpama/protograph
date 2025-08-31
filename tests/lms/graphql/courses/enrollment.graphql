@@ -1,0 +1,99 @@
+# Package: courses
+# Service: EnrollmentService
+
+type Enrollment implements Node & Timestamped @loader @loader(keys: ["studentId", "courseId"]) {
+  id: ID!
+  studentId: String! @internal
+  courseId: String! @internal
+  enrolledAt: DateTime!
+  completedAt: DateTime
+  lastAccessedAt: DateTime
+  paymentStatus: PaymentStatus!
+  paymentAmount: Float!
+  currency: String!
+  certificateUrl: URL
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  
+  # Relations (backward references only)
+  student: User! @load(with: { id: "studentId" })
+  course: Course! @load(with: { id: "courseId" })
+  
+  # Computed fields
+  progressPercentage: Float! @resolve
+  timeSpent: Int! @resolve # in minutes
+  isCompleted: Boolean! @resolve
+  canGetCertificate: Boolean! @resolve
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  FREE
+}
+
+type EnrollmentConnection {
+  edges: [EnrollmentEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type EnrollmentEdge {
+  node: Enrollment!
+  cursor: String!
+}
+
+# Extend User and Course types to add enrollment relations
+extend type User {
+  enrollments: [Enrollment!]! @load(with: { studentId: "id" })
+  teachingCourses: [Course!]! @load(with: { instructorId: "id" })
+}
+
+extend type Course {
+  enrollments: [Enrollment!]! @load(with: { courseId: "id" })
+  reviews: [CourseReview!]! @load(with: { courseId: "id" })
+}
+
+# Enrollment-related queries and mutations
+extend type Query {
+  enrollment(id: ID!): Enrollment
+  myEnrollments: [Enrollment!]!
+  enrollmentsForCourse(courseId: ID!): EnrollmentConnection!
+}
+
+extend type Mutation {
+  enrollInCourse(courseId: ID!): EnrollInCoursePayload!
+  unenrollFromCourse(courseId: ID!): UnenrollFromCoursePayload!
+  updateEnrollment(input: UpdateEnrollmentInput!): UpdateEnrollmentPayload!
+}
+
+# Input types
+input UpdateEnrollmentInput {
+  id: ID!
+  paymentStatus: PaymentStatus
+  certificateUrl: URL
+}
+
+# Payload types
+type EnrollInCoursePayload {
+  enrollment: Enrollment
+  errors: [EnrollmentError!]!
+}
+
+type UnenrollFromCoursePayload {
+  deletedEnrollmentId: ID
+  errors: [EnrollmentError!]!
+}
+
+type UpdateEnrollmentPayload {
+  enrollment: Enrollment
+  errors: [EnrollmentError!]!
+}
+
+type EnrollmentError implements Error {
+  message: String!
+  path: [String!]
+  field: String
+}

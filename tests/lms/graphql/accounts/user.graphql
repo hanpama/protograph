@@ -1,0 +1,102 @@
+# Package: accounts
+# Service: UserService
+
+type User implements Node & Timestamped @loader @loader(key: "email") {
+  id: ID!
+  email: String!
+  username: String!
+  firstName: String!
+  lastName: String!
+  avatarUrl: URL
+  role: UserRole!
+  isActive: Boolean!
+  lastLoginAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  
+  # Computed fields (no forward references to avoid cycles)
+  completedCourses: Int! @resolve
+  averageScore: Float! @resolve
+}
+
+enum UserRole {
+  STUDENT
+  INSTRUCTOR
+  ADMIN
+}
+
+type UserConnection {
+  edges: [UserEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type UserEdge {
+  node: User!
+  cursor: String!
+}
+
+# User-related queries and mutations
+extend type Query {
+  me: User
+  user(id: ID!): User
+  users(
+    first: Int
+    after: String
+    last: Int
+    before: String
+    filter: UserFilter
+  ): UserConnection!
+}
+
+extend type Mutation {
+  createUser(input: CreateUserInput!): CreateUserPayload!
+  updateUser(input: UpdateUserInput!): UpdateUserPayload!
+  deleteUser(id: ID!): DeleteUserPayload!
+}
+
+# Input types
+input UserFilter {
+  role: UserRole
+  isActive: Boolean
+  search: String
+}
+
+input CreateUserInput {
+  email: String!
+  username: String!
+  firstName: String!
+  lastName: String!
+  role: UserRole = STUDENT
+}
+
+input UpdateUserInput {
+  id: ID!
+  username: String
+  firstName: String
+  lastName: String
+  avatarUrl: URL
+}
+
+# Payload types
+type CreateUserPayload {
+  user: User
+  errors: [UserError!]!
+}
+
+type UpdateUserPayload {
+  user: User
+  errors: [UserError!]!
+}
+
+type DeleteUserPayload {
+  deletedUserId: ID
+  errors: [UserError!]!
+}
+
+# Error types
+type UserError implements Error {
+  message: String!
+  path: [String!]
+  field: String
+}

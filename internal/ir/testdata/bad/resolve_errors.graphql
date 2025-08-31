@@ -1,0 +1,8 @@
+schema { query: Query }
+
+type Query { broken: Example }
+
+type Example {
+  value: Int! @resolve               # error: missing with
+  total(limit: Int): Int! @load(with: { id: "limit" }) # error: @load on field with arguments
+}

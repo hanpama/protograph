@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package testdata.proto;
+
+message ResolveQueryVersionRequest {
+}
+
+message ResolveQueryVersionResponse {
+  string data = 1;
+}
+
+message ResolveMutationVersionRequest {
+}
+
+message ResolveMutationVersionResponse {
+  string data = 1;
+}
+
+service RootService {
+  rpc ResolveQueryVersion ( ResolveQueryVersionRequest ) returns ( ResolveQueryVersionResponse );
+
+  rpc ResolveMutationVersion ( ResolveMutationVersionRequest ) returns ( ResolveMutationVersionResponse );
+}

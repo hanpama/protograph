@@ -1,0 +1,10 @@
+# This file contains only comments
+# No actual GraphQL definitions
+# Should be handled gracefully
+
+"""
+This is a block comment
+It contains no actual definitions
+"""
+
+# Another comment

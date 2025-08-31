@@ -1,0 +1,7 @@
+schema { query: Query }
+
+type Query { bad: Broken }
+
+type Broken @loader {
+  name: String! # error: no @id and no 'id' field present for default loader key
+}

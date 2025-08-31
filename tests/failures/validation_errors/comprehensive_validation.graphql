@@ -1,0 +1,184 @@
+# Comprehensive validation error scenarios based on LMS development experience
+
+# Error 1: @load references non-existent loader key
+type Post {
+  id: ID!
+  authorEmail: String!
+  
+  # ERROR: User type doesn't have @loader(key: "email")
+  author: User! @load(with: { "email": "authorEmail" })
+}
+
+type User @loader {  # Only has default "id" loader
+  id: ID!
+  email: String!
+}
+
+# Error 2: @load references non-existent parent field
+type Comment {
+  id: ID!
+  content: String!
+  # Missing: postId field
+  
+  # ERROR: "postId" field doesn't exist on Comment
+  post: Post! @load(with: { "id": "postId" })
+}
+
+# Error 3: Type mismatch in @load mapping
+type Profile {
+  id: ID!
+  userAge: String!  # String type
+  
+  # ERROR: Trying to map String to Int
+  user: UserWithAge! @load(with: { "age": "userAge" })
+}
+
+type UserWithAge @loader(key: "age") {
+  id: ID!
+  age: Int!  # Int type - incompatible with String
+}
+
+# Error 4: Circular @load dependencies (should be detected)
+type Author @loader {
+  id: ID!
+  bestBookId: String! @internal
+  
+  # Creates potential cycle: Author -> Book -> Author
+  bestBook: Book! @load(with: { "id": "bestBookId" })
+}
+
+type Book @loader {
+  id: ID!
+  authorId: String! @internal
+  
+  # Completes the cycle
+  author: Author! @load(with: { "id": "authorId" })
+}
+
+# Error 5: Missing required interface fields
+interface Node {
+  id: ID!
+}
+
+type IncompleteNode implements Node {
+  # ERROR: Missing required "id" field from Node interface
+  name: String!
+}
+
+# Error 6: Invalid enum value patterns
+enum InvalidStatus {
+  ACTIVE
+  123_INVALID   # ERROR: Cannot start with number
+  active        # ERROR: Should be uppercase
+  SPACED VALUE  # ERROR: Cannot contain spaces
+}
+
+# Error 7: Invalid scalar mapping
+scalar CustomDate @mapScalar(toProtobuf: "invalidType")  # ERROR: Not a valid protobuf type
+
+# Error 8: Conflicting directive usage
+type ConflictingDirectives @loader(key: "email") @loader(key: "email") {
+  # ERROR: Duplicate loader keys
+  id: ID!
+  email: String!
+}
+
+# Error 9: @internal field used in public schema context
+type PublicType {
+  id: ID!
+  secretField: String! @internal
+  
+  # ERROR: Referencing internal field in non-@load context
+  displaySecret: String! @resolve(with: { "secret": "secretField" })
+}
+
+# Error 10: Missing @loader for referenced type
+type OrphanReference {
+  id: ID!
+  userId: String!
+  
+  # ERROR: MissingLoaderType has no @loader directive
+  user: MissingLoaderType! @load(with: { "id": "userId" })
+}
+
+type MissingLoaderType {
+  # No @loader directive
+  id: ID!
+  name: String!
+}
+
+# Error 11: Invalid field number allocation (reserved range)
+type ReservedRangeConflict {
+  id: ID!
+  
+  # These field names might hash to reserved range 19000-19999
+  field19000: String
+  field19001: String
+  field19999: String
+  
+  # Should trigger field number collision handling
+  manyFieldsToTriggerCollision1: String
+  manyFieldsToTriggerCollision2: String
+  manyFieldsToTriggerCollision3: String
+  manyFieldsToTriggerCollision4: String
+  manyFieldsToTriggerCollision5: String
+}
+
+# Error 12: Inconsistent nullability patterns
+type InconsistentNullability {
+  id: ID!
+  
+  # Inconsistent: nullable list with non-null items
+  inconsistentList: [String!]  # Should be [String!]! or [String]
+  
+  # Inconsistent: required field with optional type
+  requiredOptional: OptionalType!  # If OptionalType fields are all optional
+}
+
+type OptionalType {
+  optionalField1: String
+  optionalField2: String
+  # All fields optional, but type itself required above
+}
+
+# Error 13: Invalid extend type usage
+extend type NonExistentType {
+  # ERROR: Cannot extend type that doesn't exist
+  newField: String!
+}
+
+# Error 14: Argument conflicts in @resolve
+type ArgumentConflicts {
+  id: ID!
+  
+  # ERROR: Argument name conflicts with mapped field
+  processData(
+    id: String!  # Conflicts with parent field mapping
+  ): String! @resolve(with: { "id": "id" })
+}
+
+# Error 15: Deep nesting validation
+type DeeplyNested {
+  level1: Level1!
+}
+
+type Level1 {
+  level2: Level2!
+}
+
+type Level2 {
+  level3: Level3!
+}
+
+type Level3 {
+  level4: Level4!
+}
+
+type Level4 {
+  level5: Level5!
+}
+
+type Level5 {
+  # ERROR: Potentially too deep for efficient processing
+  data: String!
+}

@@ -1,0 +1,81 @@
+type Comment {
+  id: ID!
+  content: String!
+  postId: ID!
+  authorId: ID!
+  post: Post!
+  author: User!
+}
+
+input CreateUserInput {
+  email: String!
+  name: String!
+  age: Int
+  organizationId: ID
+}
+
+"""
+DateTime represents a date and time in ISO 8601 format.
+"""
+scalar DateTime
+
+type Mutation {
+  createUser(input: CreateUserInput!): User!
+  updateUser(id: ID!, input: UpdateUserInput!): User!
+  deleteUser(id: ID!): Boolean!
+}
+
+type Organization {
+  id: ID!
+  name: String!
+  description: String
+  memberCount: Int!
+  members: [User!]!
+}
+
+type Post {
+  id: ID!
+  title: String!
+  content: String!
+  published: Boolean!
+  authorId: ID!
+  author: User!
+  comments: [Comment!]!
+}
+
+type Profile {
+  id: ID!
+  userId: ID!
+  bio: String
+  avatarUrl: String
+  user: User!
+}
+
+type Query {
+"""
+Fetch a user by ID.
+"""
+  user(id: ID!): User
+  users: [User!]!
+}
+
+input UpdateUserInput {
+  email: String
+  name: String
+  age: Int
+  isActive: Boolean
+}
+
+type User {
+  id: ID!
+  email: String!
+  name: String!
+  age: Int
+  isActive: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  organizationId: ID
+  organization: Organization
+  posts: [Post!]!
+  profile: Profile
+}

@@ -1,0 +1,14 @@
+schema { query: Query }
+
+type Query { 
+  userByEmail(email: String!): User
+  userById(id: ID!): User
+}
+
+type User @loader(key: "id") @loader(key: "email") @loader(keys: ["firstName", "lastName"], batch: false) {
+  id: ID! @id
+  email: String!
+  firstName: String!
+  lastName: String!
+  bio: String!
+}

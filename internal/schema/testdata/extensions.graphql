@@ -1,0 +1,56 @@
+# Extend root types
+extend type Query {
+  # Simple extension with no type dependencies
+  getExtendedInfo: String
+  listActiveUsers: [User!]!
+}
+
+extend type Mutation {
+  # Simple extension with scalar return
+  updateUserBio(userId: ID!, bio: String!): Boolean
+}
+
+# Extend existing User type - only add simple scalar fields
+extend type User {
+  bio: JSON
+  lastLoginAt: DateTime
+  deletedAt: DateTime
+  isExtended: Boolean
+}
+
+# Extend existing interface
+extend interface Timestamped {
+  deletedAt: DateTime
+}
+
+# Extend existing enum - add new values
+extend enum UserRole {
+  AUTHOR
+  EDITOR
+}
+
+# Note: Cannot extend union with scalars - unions can only contain object types
+
+# New standalone enums - no dependencies
+enum ExtensionStatus {
+  ENABLED
+  DISABLED
+  PENDING
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+# New standalone input types
+input ExtendedFilter {
+  status: ExtensionStatus
+  priority: Priority
+  keyword: String
+}
+
+# Additional scalar
+scalar URL @mapScalar(toProtobuf: "string")

@@ -1,0 +1,15 @@
+schema { query: Query }
+
+type Query { article(id: ID!): Article }
+
+type Article @loader {
+  id: ID! @id
+  title: String!
+  authorId: ID! @internal
+  author: User @load(with: { id: "authorId" })
+}
+
+type User @loader(key: "id") {
+  id: ID! @id
+  name: String!
+}

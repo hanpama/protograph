@@ -1,0 +1,10 @@
+schema { query: Query }
+
+type Query {
+  user(id: ID!): User
+}
+
+type User @loader(key: "id") {
+  id: ID! @id
+  name: String!
+}

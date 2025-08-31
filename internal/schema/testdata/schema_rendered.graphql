@@ -1,0 +1,109 @@
+"""
+The Boolean scalar type represents true or false.
+"""
+scalar Boolean
+
+input CreateUserInput {
+  email: String!
+  name: String!
+  role: UserRole = "USER"
+}
+
+scalar DateTime
+
+input ExtendedFilter {
+  keyword: String
+  priority: Priority
+  status: ExtensionStatus
+}
+
+enum ExtensionStatus {
+  DISABLED
+  ENABLED
+  PENDING
+}
+
+"""
+The Float scalar type represents signed double-precision fractional values.
+"""
+scalar Float
+
+"""
+The ID scalar type represents a unique identifier, often used to refetch an object or as a key for caching.
+"""
+scalar ID
+
+"""
+The Int scalar type represents non-fractional signed whole numeric values.
+"""
+scalar Int
+
+scalar JSON
+
+type Mutation {
+  createUser(input: CreateUserInput!): User!
+  updateUserBio(bio: String!, userId: ID!): Boolean
+}
+
+interface Node {
+  id: ID!
+}
+
+enum Priority {
+  HIGH
+  LOW
+  MEDIUM
+  URGENT
+}
+
+type Query {
+  getExtendedInfo: String
+  getUser(id: ID!): User
+  listActiveUsers: [User!]!
+  listUsers: [User!]!
+  node(id: ID!): Node
+}
+
+union SearchResult = User
+
+"""
+The String scalar type represents textual data, represented as UTF-8 character sequences.
+"""
+scalar String
+
+interface Timestamped {
+  createdAt: DateTime!
+  deletedAt: DateTime
+  updatedAt: DateTime
+}
+
+scalar URL
+
+type User implements Node & Timestamped {
+  bio: JSON
+  createdAt: DateTime!
+  deletedAt: DateTime
+  email: String!
+  id: ID!
+  isExtended: Boolean
+  lastLoginAt: DateTime
+  name: String!
+  role: UserRole!
+  status: UserStatus!
+  updatedAt: DateTime
+}
+
+enum UserRole {
+  ADMIN
+  AUTHOR
+  EDITOR
+  GUEST
+  MODERATOR
+  USER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}

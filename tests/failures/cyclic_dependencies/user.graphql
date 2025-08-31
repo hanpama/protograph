@@ -1,0 +1,9 @@
+# File: user.graphql
+# Package: accounts
+
+type User @loader {
+  id: ID!
+  
+  # Creates dependency: accounts → blog
+  posts: [Post!]! @load(with: { "authorId": "id" })
+}

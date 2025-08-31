@@ -1,0 +1,220 @@
+{
+  "services": {
+    "TestService": {
+      "id": "TestService",
+      "name": "TestService",
+      "packagePath": [
+        "testpackage"
+      ],
+      "filePath": "testpackage/TestService.graphql",
+      "sources": [
+        "Query",
+        "Order"
+      ],
+      "directives": null,
+      "loaders": [
+        "Order:orderId:storeId"
+      ],
+      "resolvers": [
+        "Query:order"
+      ],
+      "dependencies": null
+    }
+  },
+  "schema": {
+    "queryType": "Query"
+  },
+  "definitions": {
+    "Boolean": {
+      "scalar": {
+        "name": "Boolean",
+        "description": "The Boolean scalar type represents true or false.",
+        "mappedToProtoType": "bool",
+        "specifiedByURL": "https://spec.graphql.org/October2021/#sec-Boolean"
+      }
+    },
+    "Float": {
+      "scalar": {
+        "name": "Float",
+        "description": "The Float scalar type represents signed double-precision fractional values.",
+        "mappedToProtoType": "double",
+        "specifiedByURL": "https://spec.graphql.org/October2021/#sec-Float"
+      }
+    },
+    "ID": {
+      "scalar": {
+        "name": "ID",
+        "description": "The ID scalar type represents a unique identifier, often used to refetch an object or as a key for caching.",
+        "mappedToProtoType": "string",
+        "specifiedByURL": "https://spec.graphql.org/October2021/#sec-ID"
+      }
+    },
+    "Int": {
+      "scalar": {
+        "name": "Int",
+        "description": "The Int scalar type represents non-fractional signed whole numeric values.",
+        "mappedToProtoType": "int32",
+        "specifiedByURL": "https://spec.graphql.org/October2021/#sec-Int"
+      }
+    },
+    "Order": {
+      "object": {
+        "name": "Order",
+        "fields": {
+          "orderId": {
+            "name": "orderId",
+            "index": 1,
+            "args": {},
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "String"
+              }
+            },
+            "bySource": {
+              "sourceField": "orderId"
+            }
+          },
+          "storeId": {
+            "name": "storeId",
+            "index": 0,
+            "args": {},
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "String"
+              }
+            },
+            "bySource": {
+              "sourceField": "storeId"
+            }
+          },
+          "total": {
+            "name": "total",
+            "index": 2,
+            "args": {},
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "Int"
+              }
+            },
+            "bySource": {
+              "sourceField": "total"
+            }
+          }
+        },
+        "interfaces": {},
+        "idFields": [
+          "storeId",
+          "orderId"
+        ]
+      }
+    },
+    "Query": {
+      "object": {
+        "name": "Query",
+        "fields": {
+          "order": {
+            "name": "order",
+            "index": 0,
+            "args": {
+              "id": {
+                "name": "id",
+                "index": 0,
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "NAMED",
+                    "named": "ID"
+                  }
+                }
+              }
+            },
+            "fieldType": {
+              "kind": "NAMED",
+              "named": "Order"
+            },
+            "byResolver": {
+              "resolverId": "Query:order",
+              "with": {}
+            }
+          }
+        },
+        "interfaces": {},
+        "idFields": null
+      }
+    },
+    "String": {
+      "scalar": {
+        "name": "String",
+        "description": "The String scalar type represents textual data, represented as UTF-8 character sequences.",
+        "mappedToProtoType": "string",
+        "specifiedByURL": "https://spec.graphql.org/October2021/#sec-String"
+      }
+    }
+  },
+  "directives": {},
+  "loaders": {
+    "Order:orderId:storeId": {
+      "id": "Order:orderId:storeId",
+      "targetType": "Order",
+      "keyFields": [
+        "orderId",
+        "storeId"
+      ],
+      "batch": true,
+      "args": {
+        "orderId": {
+          "name": "orderId",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "String"
+            }
+          },
+          "index": 0
+        },
+        "storeId": {
+          "name": "storeId",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "String"
+            }
+          },
+          "index": 1
+        }
+      }
+    }
+  },
+  "resolvers": {
+    "Query:order": {
+      "id": "Query:order",
+      "parent": "Query",
+      "field": "order",
+      "args": {
+        "id": {
+          "name": "id",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "ID"
+            }
+          },
+          "index": 0
+        }
+      },
+      "returnType": {
+        "kind": "NAMED",
+        "named": "Order"
+      }
+    }
+  }
+}

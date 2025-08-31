@@ -1,0 +1,103 @@
+# Package: assessments
+# Service: QuizAttemptService
+
+type QuizAttempt implements Node & Timestamped @loader @loader(keys: ["userId", "quizId"]) {
+  id: ID!
+  userId: String! @internal
+  quizId: String! @internal
+  attemptNumber: Int!
+  startedAt: DateTime!
+  completedAt: DateTime
+  timeSpent: Int # in seconds
+  score: Float
+  maxScore: Float!
+  percentage: Float
+  isPassed: Boolean
+  isCompleted: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  
+  # Relations (backward references only)
+  user: User! @load(with: { id: "userId" })
+  quiz: Quiz! @load(with: { id: "quizId" })
+  responses: [QuestionResponse!]! @resolve(with: { attemptId: "id" })
+}
+
+type QuestionResponse @loader {
+  id: ID!
+  attemptId: String! @internal
+  questionId: String! @internal
+  selectedOptions: [ID!]!
+  textAnswer: String
+  isCorrect: Boolean
+  points: Float!
+  
+  attempt: QuizAttempt! @load(with: { id: "attemptId" })
+  question: Question! @load(with: { id: "questionId" })
+}
+
+type QuizAttemptConnection {
+  edges: [QuizAttemptEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type QuizAttemptEdge {
+  node: QuizAttempt!
+  cursor: String!
+}
+
+# Extend Quiz with attempts relation
+extend type Quiz {
+  attempts: [QuizAttempt!]! @resolve(with: { quizId: "id" })
+}
+
+# Extend User with quiz attempts relation
+extend type User {
+  quizAttempts: [QuizAttempt!]! @resolve(with: { userId: "id" })
+}
+
+# Extend Question with responses relation
+extend type Question {
+  responses: [QuestionResponse!]! @resolve(with: { questionId: "id" })
+}
+
+# QuizAttempt-related queries and mutations
+extend type Query {
+  quizAttempt(id: ID!): QuizAttempt
+  myQuizAttempts(quizId: ID): [QuizAttempt!]!
+}
+
+extend type Mutation {
+  startQuizAttempt(quizId: ID!): StartQuizAttemptPayload!
+  submitQuizAttempt(input: SubmitQuizAttemptInput!): SubmitQuizAttemptPayload!
+}
+
+# Input types
+input SubmitQuizAttemptInput {
+  attemptId: ID!
+  responses: [QuestionResponseInput!]!
+}
+
+input QuestionResponseInput {
+  questionId: ID!
+  selectedOptions: [ID!]
+  textAnswer: String
+}
+
+# Payload types
+type StartQuizAttemptPayload {
+  attempt: QuizAttempt
+  errors: [QuizAttemptError!]!
+}
+
+type SubmitQuizAttemptPayload {
+  attempt: QuizAttempt
+  errors: [QuizAttemptError!]!
+}
+
+type QuizAttemptError implements Error {
+  message: String!
+  path: [String!]
+  field: String
+}

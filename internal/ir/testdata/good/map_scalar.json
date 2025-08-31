@@ -1,0 +1,166 @@
+{
+  "services": {
+    "TestService": {
+      "id": "TestService",
+      "name": "TestService",
+      "packagePath": [
+        "testpackage"
+      ],
+      "filePath": "testpackage/TestService.graphql",
+      "sources": [
+        "Money",
+        "CustomString",
+        "Untyped",
+        "Query"
+      ],
+      "directives": null,
+      "loaders": null,
+      "resolvers": [
+        "Query:price"
+      ],
+      "dependencies": null
+    }
+  },
+  "schema": {
+    "queryType": "Query"
+  },
+  "definitions": {
+    "Boolean": {
+      "scalar": {
+        "name": "Boolean",
+        "description": "The Boolean scalar type represents true or false.",
+        "mappedToProtoType": "bool",
+        "specifiedByURL": "https://spec.graphql.org/October2021/#sec-Boolean"
+      }
+    },
+    "CustomString": {
+      "scalar": {
+        "name": "CustomString"
+      }
+    },
+    "Float": {
+      "scalar": {
+        "name": "Float",
+        "description": "The Float scalar type represents signed double-precision fractional values.",
+        "mappedToProtoType": "double",
+        "specifiedByURL": "https://spec.graphql.org/October2021/#sec-Float"
+      }
+    },
+    "ID": {
+      "scalar": {
+        "name": "ID",
+        "description": "The ID scalar type represents a unique identifier, often used to refetch an object or as a key for caching.",
+        "mappedToProtoType": "string",
+        "specifiedByURL": "https://spec.graphql.org/October2021/#sec-ID"
+      }
+    },
+    "Int": {
+      "scalar": {
+        "name": "Int",
+        "description": "The Int scalar type represents non-fractional signed whole numeric values.",
+        "mappedToProtoType": "int32",
+        "specifiedByURL": "https://spec.graphql.org/October2021/#sec-Int"
+      }
+    },
+    "Money": {
+      "scalar": {
+        "name": "Money",
+        "mappedToProtoType": "int64"
+      }
+    },
+    "Query": {
+      "object": {
+        "name": "Query",
+        "fields": {
+          "price": {
+            "name": "price",
+            "index": 0,
+            "args": {
+              "id": {
+                "name": "id",
+                "index": 0,
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "NAMED",
+                    "named": "ID"
+                  }
+                }
+              }
+            },
+            "fieldType": {
+              "kind": "NAMED",
+              "named": "Money"
+            },
+            "byResolver": {
+              "resolverId": "Query:price",
+              "with": {}
+            }
+          }
+        },
+        "interfaces": {},
+        "idFields": null
+      }
+    },
+    "String": {
+      "scalar": {
+        "name": "String",
+        "description": "The String scalar type represents textual data, represented as UTF-8 character sequences.",
+        "mappedToProtoType": "string",
+        "specifiedByURL": "https://spec.graphql.org/October2021/#sec-String"
+      }
+    },
+    "Untyped": {
+      "scalar": {
+        "name": "Untyped"
+      }
+    }
+  },
+  "directives": {
+    "mapScalar": {
+      "name": "mapScalar",
+      "args": {
+        "toProtobuf": {
+          "name": "toProtobuf",
+          "index": 0,
+          "defaultValue": "string",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "String"
+            }
+          }
+        }
+      },
+      "locations": [
+        "SCALAR"
+      ]
+    }
+  },
+  "loaders": {},
+  "resolvers": {
+    "Query:price": {
+      "id": "Query:price",
+      "parent": "Query",
+      "field": "price",
+      "args": {
+        "id": {
+          "name": "id",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "ID"
+            }
+          },
+          "index": 0
+        }
+      },
+      "returnType": {
+        "kind": "NAMED",
+        "named": "Money"
+      }
+    }
+  }
+}

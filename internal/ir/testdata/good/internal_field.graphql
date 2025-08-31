@@ -1,0 +1,9 @@
+schema { query: Query }
+
+type Query { account(id: ID!): Account }
+
+type Account @loader {
+  id: ID! @id
+  name: String!
+  internalRef: String! @internal @id
+}

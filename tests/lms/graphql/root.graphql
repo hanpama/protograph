@@ -1,0 +1,54 @@
+# Root aggregation and global queries
+# This file should be loaded last after all other modules
+
+# Global search functionality
+extend type Query {
+  search(
+    query: String!
+    type: SearchType
+    first: Int
+    after: String
+  ): SearchConnection!
+  
+  # Analytics
+  courseAnalytics(courseId: ID!): CourseAnalytics!
+}
+
+# Search types
+enum SearchType {
+  COURSE
+  USER
+  ALL
+}
+
+type SearchConnection {
+  edges: [SearchEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type SearchEdge {
+  node: SearchResult!
+  cursor: String!
+}
+
+union SearchResult = Course | User
+
+# Analytics types
+type CourseAnalytics {
+  courseId: ID!
+  enrollmentCount: Int!
+  completionCount: Int!
+  completionRate: Float!
+  averageRating: Float!
+  averageCompletionTime: Int! # in hours
+  dropoffPoints: [LessonAnalytics!]!
+}
+
+type LessonAnalytics {
+  lessonId: ID!
+  viewCount: Int!
+  completionCount: Int!
+  averageTimeSpent: Int! # in minutes
+  dropoffRate: Float!
+}

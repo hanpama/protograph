@@ -1,0 +1,11 @@
+schema { query: Query }
+
+directive @mapScalar(toProtobuf: String! = "string") on SCALAR
+
+scalar Money @mapScalar(toProtobuf: "int64")
+
+scalar CustomString
+
+scalar Untyped
+
+type Query { price(id: ID!): Money }

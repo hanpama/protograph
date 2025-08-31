@@ -1,0 +1,282 @@
+syntax = "proto3";
+
+package simple;
+
+message UserSource {
+  string id = 23236;
+
+  string email = 20000;
+
+  string name = 29928;
+
+  int32 age = 17865;
+
+  bool is_active = 16737;
+
+  string created_at = 7338;
+
+  string updated_at = 18192;
+
+  string organization_id = 16616;
+}
+
+message OrganizationSource {
+  string id = 23236;
+
+  string name = 29928;
+
+  string description = 13174;
+}
+
+message PostSource {
+  string id = 23236;
+
+  string title = 3552;
+
+  string content = 24511;
+
+  bool published = 22952;
+
+  string author_id = 29641;
+}
+
+message CommentSource {
+  string id = 23236;
+
+  string content = 24511;
+
+  string post_id = 23806;
+
+  string author_id = 29641;
+}
+
+message ProfileSource {
+  string id = 23236;
+
+  string user_id = 12974;
+
+  string bio = 20192;
+
+  string avatar_url = 20871;
+}
+
+message CreateUserInputSource {
+  string email = 20000;
+
+  string name = 29928;
+
+  int32 age = 17865;
+
+  string organization_id = 16616;
+}
+
+message UpdateUserInputSource {
+  string email = 20000;
+
+  string name = 29928;
+
+  int32 age = 17865;
+
+  bool is_active = 16737;
+}
+
+message ResolveQueryUserRequest {
+  string id = 23236;
+}
+
+message ResolveQueryUserResponse {
+  UserSource data = 1;
+}
+
+message ResolveQueryUsersRequest {
+}
+
+message ResolveQueryUsersResponse {
+  repeated UserSource data = 1;
+}
+
+message ResolveMutationCreateUserRequest {
+  CreateUserInputSource input = 23683;
+}
+
+message ResolveMutationCreateUserResponse {
+  UserSource data = 1;
+}
+
+message ResolveMutationUpdateUserRequest {
+  UpdateUserInputSource input = 23683;
+
+  string id = 23236;
+}
+
+message ResolveMutationUpdateUserResponse {
+  UserSource data = 1;
+}
+
+message ResolveMutationDeleteUserRequest {
+  string id = 23236;
+}
+
+message ResolveMutationDeleteUserResponse {
+  bool data = 1;
+}
+
+message ResolveUserPostsRequest {
+  string author_id = 29641;
+}
+
+message ResolveUserPostsResponse {
+  repeated PostSource data = 1;
+}
+
+message ResolveOrganizationMemberCountRequest {
+  string id = 23236;
+}
+
+message ResolveOrganizationMemberCountResponse {
+  int32 data = 1;
+}
+
+message ResolveOrganizationMembersRequest {
+  string organization_id = 16616;
+}
+
+message ResolveOrganizationMembersResponse {
+  repeated UserSource data = 1;
+}
+
+message ResolvePostCommentsRequest {
+  string post_id = 23806;
+}
+
+message ResolvePostCommentsResponse {
+  repeated CommentSource data = 1;
+}
+
+message BatchLoadUserByIdRequest {
+  repeated LoadUserByIdRequest batches = 1;
+}
+
+message BatchLoadUserByIdResponse {
+  repeated LoadUserByIdResponse batches = 1;
+}
+
+message LoadUserByIdRequest {
+  string id = 23236;
+}
+
+message LoadUserByIdResponse {
+  UserSource data = 1;
+}
+
+message BatchLoadUserByEmailRequest {
+  repeated LoadUserByEmailRequest batches = 1;
+}
+
+message BatchLoadUserByEmailResponse {
+  repeated LoadUserByEmailResponse batches = 1;
+}
+
+message LoadUserByEmailRequest {
+  string email = 20000;
+}
+
+message LoadUserByEmailResponse {
+  UserSource data = 1;
+}
+
+message BatchLoadOrganizationByIdRequest {
+  repeated LoadOrganizationByIdRequest batches = 1;
+}
+
+message BatchLoadOrganizationByIdResponse {
+  repeated LoadOrganizationByIdResponse batches = 1;
+}
+
+message LoadOrganizationByIdRequest {
+  string id = 23236;
+}
+
+message LoadOrganizationByIdResponse {
+  OrganizationSource data = 1;
+}
+
+message BatchLoadPostByIdRequest {
+  repeated LoadPostByIdRequest batches = 1;
+}
+
+message BatchLoadPostByIdResponse {
+  repeated LoadPostByIdResponse batches = 1;
+}
+
+message LoadPostByIdRequest {
+  string id = 23236;
+}
+
+message LoadPostByIdResponse {
+  PostSource data = 1;
+}
+
+message BatchLoadCommentByIdRequest {
+  repeated LoadCommentByIdRequest batches = 1;
+}
+
+message BatchLoadCommentByIdResponse {
+  repeated LoadCommentByIdResponse batches = 1;
+}
+
+message LoadCommentByIdRequest {
+  string id = 23236;
+}
+
+message LoadCommentByIdResponse {
+  CommentSource data = 1;
+}
+
+message BatchLoadProfileByUserIdRequest {
+  repeated LoadProfileByUserIdRequest batches = 1;
+}
+
+message BatchLoadProfileByUserIdResponse {
+  repeated LoadProfileByUserIdResponse batches = 1;
+}
+
+message LoadProfileByUserIdRequest {
+  string user_id = 12974;
+}
+
+message LoadProfileByUserIdResponse {
+  ProfileSource data = 1;
+}
+
+service UserService {
+  rpc ResolveQueryUser ( ResolveQueryUserRequest ) returns ( ResolveQueryUserResponse );
+
+  rpc ResolveQueryUsers ( ResolveQueryUsersRequest ) returns ( ResolveQueryUsersResponse );
+
+  rpc ResolveMutationCreateUser ( ResolveMutationCreateUserRequest ) returns ( ResolveMutationCreateUserResponse );
+
+  rpc ResolveMutationUpdateUser ( ResolveMutationUpdateUserRequest ) returns ( ResolveMutationUpdateUserResponse );
+
+  rpc ResolveMutationDeleteUser ( ResolveMutationDeleteUserRequest ) returns ( ResolveMutationDeleteUserResponse );
+
+  rpc ResolveUserPosts ( ResolveUserPostsRequest ) returns ( ResolveUserPostsResponse );
+
+  rpc ResolveOrganizationMemberCount ( ResolveOrganizationMemberCountRequest ) returns ( ResolveOrganizationMemberCountResponse );
+
+  rpc ResolveOrganizationMembers ( ResolveOrganizationMembersRequest ) returns ( ResolveOrganizationMembersResponse );
+
+  rpc ResolvePostComments ( ResolvePostCommentsRequest ) returns ( ResolvePostCommentsResponse );
+
+  rpc BatchLoadUserById ( BatchLoadUserByIdRequest ) returns ( BatchLoadUserByIdResponse );
+
+  rpc BatchLoadUserByEmail ( BatchLoadUserByEmailRequest ) returns ( BatchLoadUserByEmailResponse );
+
+  rpc BatchLoadOrganizationById ( BatchLoadOrganizationByIdRequest ) returns ( BatchLoadOrganizationByIdResponse );
+
+  rpc BatchLoadPostById ( BatchLoadPostByIdRequest ) returns ( BatchLoadPostByIdResponse );
+
+  rpc BatchLoadCommentById ( BatchLoadCommentByIdRequest ) returns ( BatchLoadCommentByIdResponse );
+
+  rpc BatchLoadProfileByUserId ( BatchLoadProfileByUserIdRequest ) returns ( BatchLoadProfileByUserIdResponse );
+}

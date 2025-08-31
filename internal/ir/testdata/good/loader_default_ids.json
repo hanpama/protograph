@@ -1,0 +1,220 @@
+{
+  "services": {
+    "TestService": {
+      "id": "TestService",
+      "name": "TestService",
+      "packagePath": [
+        "testpackage"
+      ],
+      "filePath": "testpackage/TestService.graphql",
+      "sources": [
+        "Query",
+        "Product"
+      ],
+      "directives": null,
+      "loaders": [
+        "Product:gtin:sku"
+      ],
+      "resolvers": [
+        "Query:product"
+      ],
+      "dependencies": null
+    }
+  },
+  "schema": {
+    "queryType": "Query"
+  },
+  "definitions": {
+    "Boolean": {
+      "scalar": {
+        "name": "Boolean",
+        "description": "The Boolean scalar type represents true or false.",
+        "mappedToProtoType": "bool",
+        "specifiedByURL": "https://spec.graphql.org/October2021/#sec-Boolean"
+      }
+    },
+    "Float": {
+      "scalar": {
+        "name": "Float",
+        "description": "The Float scalar type represents signed double-precision fractional values.",
+        "mappedToProtoType": "double",
+        "specifiedByURL": "https://spec.graphql.org/October2021/#sec-Float"
+      }
+    },
+    "ID": {
+      "scalar": {
+        "name": "ID",
+        "description": "The ID scalar type represents a unique identifier, often used to refetch an object or as a key for caching.",
+        "mappedToProtoType": "string",
+        "specifiedByURL": "https://spec.graphql.org/October2021/#sec-ID"
+      }
+    },
+    "Int": {
+      "scalar": {
+        "name": "Int",
+        "description": "The Int scalar type represents non-fractional signed whole numeric values.",
+        "mappedToProtoType": "int32",
+        "specifiedByURL": "https://spec.graphql.org/October2021/#sec-Int"
+      }
+    },
+    "Product": {
+      "object": {
+        "name": "Product",
+        "fields": {
+          "gtin": {
+            "name": "gtin",
+            "index": 1,
+            "args": {},
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "String"
+              }
+            },
+            "bySource": {
+              "sourceField": "gtin"
+            }
+          },
+          "name": {
+            "name": "name",
+            "index": 2,
+            "args": {},
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "String"
+              }
+            },
+            "bySource": {
+              "sourceField": "name"
+            }
+          },
+          "sku": {
+            "name": "sku",
+            "index": 0,
+            "args": {},
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "ID"
+              }
+            },
+            "bySource": {
+              "sourceField": "sku"
+            }
+          }
+        },
+        "interfaces": {},
+        "idFields": [
+          "sku",
+          "gtin"
+        ]
+      }
+    },
+    "Query": {
+      "object": {
+        "name": "Query",
+        "fields": {
+          "product": {
+            "name": "product",
+            "index": 0,
+            "args": {
+              "sku": {
+                "name": "sku",
+                "index": 0,
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "NAMED",
+                    "named": "ID"
+                  }
+                }
+              }
+            },
+            "fieldType": {
+              "kind": "NAMED",
+              "named": "Product"
+            },
+            "byResolver": {
+              "resolverId": "Query:product",
+              "with": {}
+            }
+          }
+        },
+        "interfaces": {},
+        "idFields": null
+      }
+    },
+    "String": {
+      "scalar": {
+        "name": "String",
+        "description": "The String scalar type represents textual data, represented as UTF-8 character sequences.",
+        "mappedToProtoType": "string",
+        "specifiedByURL": "https://spec.graphql.org/October2021/#sec-String"
+      }
+    }
+  },
+  "directives": {},
+  "loaders": {
+    "Product:gtin:sku": {
+      "id": "Product:gtin:sku",
+      "targetType": "Product",
+      "keyFields": [
+        "gtin",
+        "sku"
+      ],
+      "batch": true,
+      "args": {
+        "gtin": {
+          "name": "gtin",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "String"
+            }
+          },
+          "index": 0
+        },
+        "sku": {
+          "name": "sku",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "ID"
+            }
+          },
+          "index": 1
+        }
+      }
+    }
+  },
+  "resolvers": {
+    "Query:product": {
+      "id": "Query:product",
+      "parent": "Query",
+      "field": "product",
+      "args": {
+        "sku": {
+          "name": "sku",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "ID"
+            }
+          },
+          "index": 0
+        }
+      },
+      "returnType": {
+        "kind": "NAMED",
+        "named": "Product"
+      }
+    }
+  }
+}

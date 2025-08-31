@@ -1,0 +1,9 @@
+schema { query: Query }
+
+type Query { product(sku: ID!): Product }
+
+type Product @loader {
+  sku: ID! @id
+  gtin: String! @id
+  name: String!
+}

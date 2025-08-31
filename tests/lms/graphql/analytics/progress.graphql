@@ -1,0 +1,163 @@
+# Package: analytics
+# Service: ProgressService
+
+type Progress implements Node & Timestamped @loader @loader(keys: ["userId", "lessonId", "enrollmentId"]) {
+  id: ID!
+  userId: String! @internal
+  lessonId: String! @internal
+  enrollmentId: String! @internal
+  status: ProgressStatus!
+  completedAt: DateTime
+  timeSpent: Int! # in seconds
+  watchedDuration: Int # for video lessons, in seconds
+  score: Float # for quizzes/assignments
+  attempts: Int!
+  lastAttemptAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  
+  # Relations (backward references only)
+  user: User! @load(with: { id: "userId" })
+  lesson: Lesson! @load(with: { id: "lessonId" })
+  enrollment: Enrollment! @load(with: { id: "enrollmentId" })
+  
+  # For quiz/assignment lessons
+  submissions: [Submission!]! @resolve(with: { progressId: "id" })
+}
+
+type Submission implements Timestamped @loader {
+  id: ID!
+  progressId: String! @internal
+  content: SubmissionData!
+  score: Float
+  feedback: String
+  gradedAt: DateTime
+  gradedBy: String @internal
+  createdAt: DateTime!
+  updatedAt: DateTime!
+
+  progress: Progress! @load(with: { id: "progressId" })
+  grader: User @load(with: { id: "gradedBy" })
+}
+
+union SubmissionData = TextSubmission | FileSubmission | CodeSubmission
+
+type TextSubmission {
+  text: String!
+  wordCount: Int!
+}
+
+type FileSubmission {
+  fileUrl: URL!
+  fileName: String!
+  fileSize: Int!
+  mimeType: String!
+}
+
+type CodeSubmission {
+  code: String!
+  language: String!
+  testResults: JSON
+}
+
+enum ProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+}
+
+type ProgressConnection {
+  edges: [ProgressEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type ProgressEdge {
+  node: Progress!
+  cursor: String!
+}
+
+# Extend other types to add progress relations
+extend type User {
+  progress: [Progress!]! @resolve(with: { userId: "id" })
+}
+
+extend type Lesson {
+  progress: [Progress!]! @resolve(with: { lessonId: "id" })
+}
+
+extend type Enrollment {
+  progress: [Progress!]! @resolve(with: { enrollmentId: "id" })
+}
+
+# Progress-related queries and mutations
+extend type Query {
+  progress(id: ID!): Progress
+  myProgress(courseId: ID): ProgressConnection!
+  progressForCourse(courseId: ID!): ProgressConnection!
+  progressForLesson(lessonId: ID!): ProgressConnection!
+}
+
+extend type Mutation {
+  updateProgress(input: UpdateProgressInput!): UpdateProgressPayload!
+  completeLesson(lessonId: ID!): CompleteLessonPayload!
+  submitAssignment(input: SubmitAssignmentInput!): SubmitAssignmentPayload!
+}
+
+# Input types
+input UpdateProgressInput {
+  lessonId: ID!
+  status: ProgressStatus!
+  timeSpent: Int
+  watchedDuration: Int
+}
+
+input SubmitAssignmentInput {
+  progressId: ID!
+  submission: SubmissionDataInput!
+}
+
+input SubmissionDataInput {
+  text: TextSubmissionInput
+  file: FileSubmissionInput
+  code: CodeSubmissionInput
+}
+
+input TextSubmissionInput {
+  text: String!
+}
+
+input FileSubmissionInput {
+  fileUrl: URL!
+  fileName: String!
+  fileSize: Int!
+  mimeType: String!
+}
+
+input CodeSubmissionInput {
+  code: String!
+  language: String!
+}
+
+# Payload types
+type UpdateProgressPayload {
+  progress: Progress
+  errors: [ProgressError!]!
+}
+
+type CompleteLessonPayload {
+  progress: Progress
+  errors: [ProgressError!]!
+}
+
+type SubmitAssignmentPayload {
+  submission: Submission
+  errors: [ProgressError!]!
+}
+
+type ProgressError implements Error {
+  message: String!
+  path: [String!]
+  field: String
+}

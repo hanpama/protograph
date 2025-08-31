@@ -1,0 +1,14 @@
+# This should fail: Type mismatch in mapping
+
+type User @loader {
+  id: ID!
+  age: Int!
+}
+
+type Post {
+  id: ID!
+  authorName: String!
+  
+  # ERROR: Trying to map String (authorName) to Int (age)
+  author: User! @load(with: { "age": "authorName" })
+}

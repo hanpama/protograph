@@ -1,0 +1,14 @@
+# This should fail: @load references non-existent loader
+
+type User {
+  id: ID!
+  email: String!
+}
+
+type Post {
+  id: ID!
+  authorEmail: String!
+  
+  # ERROR: User type doesn't have a loader for "email"
+  author: User! @load(with: { "email": "authorEmail" })
+}

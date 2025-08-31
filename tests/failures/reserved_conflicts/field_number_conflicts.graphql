@@ -1,0 +1,67 @@
+# Test field number allocation with reserved range 19000-19999
+
+type User {
+  id: ID!
+  
+  # These fields might hash to values in reserved range
+  # The system should handle collisions gracefully
+  field19000: String
+  field19001: String
+  field19500: String
+  field19999: String
+  
+  # Many fields to increase collision probability
+  username: String!
+  email: String!
+  firstName: String
+  lastName: String
+  phone: String
+  address: String
+  city: String
+  country: String
+  postalCode: String
+  dateOfBirth: Date
+  registeredAt: DateTime!
+  lastLoginAt: DateTime
+  isActive: Boolean!
+  isVerified: Boolean!
+  role: String!
+  permissions: [String!]!
+  metadata: JSON
+  tags: [String!]!
+  score: Float
+  ranking: Int
+  level: Int
+  experience: BigInt
+  achievements: [String!]!
+  settings: JSON
+  preferences: JSON
+  theme: String
+  language: String
+  timezone: String
+  avatar: String
+  banner: String
+  bio: String
+  website: String
+  socialLinks: JSON
+  followers: Int
+  following: Int
+  posts: Int
+  comments: Int
+  likes: Int
+  shares: Int
+  views: BigInt
+  reputation: Float
+  karma: Int
+  badges: [String!]!
+  notifications: Boolean
+  emailNotifications: Boolean
+  pushNotifications: Boolean
+  smsNotifications: Boolean
+  newsletter: Boolean
+  marketing: Boolean
+  analytics: Boolean
+  cookies: Boolean
+  tracking: Boolean
+  personalization: Boolean
+}

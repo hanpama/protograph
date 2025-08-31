@@ -1,0 +1,23 @@
+schema { query: Query }
+
+type Query { 
+  currentUser: User
+  blog(id: ID!): Blog
+}
+
+type User @loader {
+  id: ID! @id
+  name: String!
+}
+
+type Blog @loader {
+  id: ID! @id
+  title: String!
+  posts(limit: Int): [Post!]!
+  followerCount: Int! @resolve(with: { blogId: "id" }, batch: true)
+}
+
+type Post @loader {
+  id: ID! @id
+  title: String!
+}

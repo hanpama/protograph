@@ -1,0 +1,221 @@
+{
+  "services": {
+    "TestService": {
+      "id": "TestService",
+      "name": "TestService",
+      "packagePath": [
+        "testpackage"
+      ],
+      "filePath": "testpackage/TestService.graphql",
+      "sources": [
+        "Query",
+        "Account"
+      ],
+      "directives": null,
+      "loaders": [
+        "Account:id:internalRef"
+      ],
+      "resolvers": [
+        "Query:account"
+      ],
+      "dependencies": null
+    }
+  },
+  "schema": {
+    "queryType": "Query"
+  },
+  "definitions": {
+    "Account": {
+      "object": {
+        "name": "Account",
+        "fields": {
+          "id": {
+            "name": "id",
+            "index": 0,
+            "args": {},
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "ID"
+              }
+            },
+            "bySource": {
+              "sourceField": "id"
+            }
+          },
+          "internalRef": {
+            "name": "internalRef",
+            "index": 2,
+            "args": {},
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "String"
+              }
+            },
+            "isInternal": true,
+            "bySource": {
+              "sourceField": "internalRef"
+            }
+          },
+          "name": {
+            "name": "name",
+            "index": 1,
+            "args": {},
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "String"
+              }
+            },
+            "bySource": {
+              "sourceField": "name"
+            }
+          }
+        },
+        "interfaces": {},
+        "idFields": [
+          "id",
+          "internalRef"
+        ]
+      }
+    },
+    "Boolean": {
+      "scalar": {
+        "name": "Boolean",
+        "description": "The Boolean scalar type represents true or false.",
+        "mappedToProtoType": "bool",
+        "specifiedByURL": "https://spec.graphql.org/October2021/#sec-Boolean"
+      }
+    },
+    "Float": {
+      "scalar": {
+        "name": "Float",
+        "description": "The Float scalar type represents signed double-precision fractional values.",
+        "mappedToProtoType": "double",
+        "specifiedByURL": "https://spec.graphql.org/October2021/#sec-Float"
+      }
+    },
+    "ID": {
+      "scalar": {
+        "name": "ID",
+        "description": "The ID scalar type represents a unique identifier, often used to refetch an object or as a key for caching.",
+        "mappedToProtoType": "string",
+        "specifiedByURL": "https://spec.graphql.org/October2021/#sec-ID"
+      }
+    },
+    "Int": {
+      "scalar": {
+        "name": "Int",
+        "description": "The Int scalar type represents non-fractional signed whole numeric values.",
+        "mappedToProtoType": "int32",
+        "specifiedByURL": "https://spec.graphql.org/October2021/#sec-Int"
+      }
+    },
+    "Query": {
+      "object": {
+        "name": "Query",
+        "fields": {
+          "account": {
+            "name": "account",
+            "index": 0,
+            "args": {
+              "id": {
+                "name": "id",
+                "index": 0,
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "NAMED",
+                    "named": "ID"
+                  }
+                }
+              }
+            },
+            "fieldType": {
+              "kind": "NAMED",
+              "named": "Account"
+            },
+            "byResolver": {
+              "resolverId": "Query:account",
+              "with": {}
+            }
+          }
+        },
+        "interfaces": {},
+        "idFields": null
+      }
+    },
+    "String": {
+      "scalar": {
+        "name": "String",
+        "description": "The String scalar type represents textual data, represented as UTF-8 character sequences.",
+        "mappedToProtoType": "string",
+        "specifiedByURL": "https://spec.graphql.org/October2021/#sec-String"
+      }
+    }
+  },
+  "directives": {},
+  "loaders": {
+    "Account:id:internalRef": {
+      "id": "Account:id:internalRef",
+      "targetType": "Account",
+      "keyFields": [
+        "id",
+        "internalRef"
+      ],
+      "batch": true,
+      "args": {
+        "id": {
+          "name": "id",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "ID"
+            }
+          },
+          "index": 0
+        },
+        "internalRef": {
+          "name": "internalRef",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "String"
+            }
+          },
+          "index": 1
+        }
+      }
+    }
+  },
+  "resolvers": {
+    "Query:account": {
+      "id": "Query:account",
+      "parent": "Query",
+      "field": "account",
+      "args": {
+        "id": {
+          "name": "id",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "ID"
+            }
+          },
+          "index": 0
+        }
+      },
+      "returnType": {
+        "kind": "NAMED",
+        "named": "Account"
+      }
+    }
+  }
+}

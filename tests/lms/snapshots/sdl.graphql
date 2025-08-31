@@ -1,0 +1,939 @@
+type AssignmentContent {
+  instructions: String!
+  submissionFormat: SubmissionFormat!
+  maxFileSize: Int
+  allowedFileTypes: [String!]!
+}
+
+input AssignmentContentInput {
+  instructions: String!
+  submissionFormat: SubmissionFormat!
+  maxFileSize: Int
+  allowedFileTypes: [String!]!
+}
+
+type Category implements Node {
+  id: ID!
+  name: String!
+  slug: String!
+  description: String
+  parentId: String
+  parent: Category
+  children: [Category!]!
+  courses: [Course!]!
+}
+
+type CategoryError implements Error {
+  message: String!
+  path: [String!]
+  field: String
+}
+
+type CodeSubmission {
+  code: String!
+  language: String!
+  testResults: JSON
+}
+
+input CodeSubmissionInput {
+  code: String!
+  language: String!
+}
+
+type CompleteLessonPayload {
+  progress: Progress
+  errors: [ProgressError!]!
+}
+
+type Course implements Node & Timestamped {
+  id: ID!
+  title: String!
+  slug: String!
+  description: String!
+  shortDescription: String
+  thumbnailUrl: URL
+  instructorId: String!
+  categoryId: String!
+  price: Float!
+  currency: String!
+  isPublished: Boolean!
+  publishedAt: DateTime
+  duration: Int!
+  level: CourseLevel!
+  language: String!
+  requirements: [String!]!
+  objectives: [String!]!
+  tags: [String!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  instructor: User!
+  category: Category!
+  enrollmentCount: Int!
+  averageRating: Float!
+  completionRate: Float!
+  enrollments: [Enrollment!]!
+  reviews: [CourseReview!]!
+  lessons: [Lesson!]!
+}
+
+type CourseAnalytics {
+  courseId: ID!
+  enrollmentCount: Int!
+  completionCount: Int!
+  completionRate: Float!
+  averageRating: Float!
+  averageCompletionTime: Int!
+  dropoffPoints: [LessonAnalytics!]!
+}
+
+type CourseConnection {
+  edges: [CourseEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type CourseEdge {
+  node: Course!
+  cursor: String!
+}
+
+type CourseError implements Error {
+  message: String!
+  path: [String!]
+  field: String
+}
+
+input CourseFilter {
+  categoryId: ID
+  instructorId: ID
+  level: CourseLevel
+  isPublished: Boolean
+  priceRange: PriceRangeInput
+  tags: [String!]
+}
+
+enum CourseLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+type CourseReview implements Timestamped {
+  id: ID!
+  courseId: String!
+  userId: String!
+  rating: Int!
+  comment: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  course: Course!
+  user: User!
+}
+
+input CreateCategoryInput {
+  name: String!
+  slug: String!
+  description: String
+  parentId: ID
+}
+
+type CreateCategoryPayload {
+  category: Category
+  errors: [CategoryError!]!
+}
+
+input CreateCourseInput {
+  title: String!
+  slug: String!
+  description: String!
+  shortDescription: String
+  categoryId: ID!
+  price: Float!
+  currency: String = "USD"
+  level: CourseLevel!
+  language: String = "en"
+  requirements: [String!]
+  objectives: [String!]
+  tags: [String!]
+}
+
+type CreateCoursePayload {
+  course: Course
+  errors: [CourseError!]!
+}
+
+input CreateLessonInput {
+  title: String!
+  description: String
+  courseId: ID!
+  order: Int!
+  type: LessonType!
+  content: LessonContentInput!
+  duration: Int!
+  isFree: Boolean = false
+}
+
+type CreateLessonPayload {
+  lesson: Lesson
+  errors: [LessonError!]!
+}
+
+input CreateQuestionInput {
+  quizId: ID!
+  type: QuestionType!
+  question: String!
+  explanation: String
+  points: Float!
+  order: Int!
+  isRequired: Boolean = true
+  options: [QuestionOptionInput!]!
+}
+
+type CreateQuestionPayload {
+  question: Question
+  errors: [QuizError!]!
+}
+
+input CreateQuizInput {
+  title: String!
+  description: String
+  instructions: String
+  timeLimit: Int
+  maxAttempts: Int
+  passingScore: Float!
+  randomizeQuestions: Boolean = false
+  showCorrectAnswers: Boolean = true
+  allowReview: Boolean = true
+}
+
+type CreateQuizPayload {
+  quiz: Quiz
+  errors: [QuizError!]!
+}
+
+input CreateUserInput {
+  email: String!
+  username: String!
+  firstName: String!
+  lastName: String!
+  role: UserRole = STUDENT
+}
+
+type CreateUserPayload {
+  user: User
+  errors: [UserError!]!
+}
+
+scalar DateTime
+
+type DeleteCategoryPayload {
+  deletedCategoryId: ID
+  errors: [CategoryError!]!
+}
+
+type DeleteCoursePayload {
+  deletedCourseId: ID
+  errors: [CourseError!]!
+}
+
+type DeleteLessonPayload {
+  deletedLessonId: ID
+  errors: [LessonError!]!
+}
+
+type DeleteQuestionPayload {
+  deletedQuestionId: ID
+  errors: [QuizError!]!
+}
+
+type DeleteQuizPayload {
+  deletedQuizId: ID
+  errors: [QuizError!]!
+}
+
+type DeleteUserPayload {
+  deletedUserId: ID
+  errors: [UserError!]!
+}
+
+type EnrollInCoursePayload {
+  enrollment: Enrollment
+  errors: [EnrollmentError!]!
+}
+
+type Enrollment implements Node & Timestamped {
+  id: ID!
+  studentId: String!
+  courseId: String!
+  enrolledAt: DateTime!
+  completedAt: DateTime
+  lastAccessedAt: DateTime
+  paymentStatus: PaymentStatus!
+  paymentAmount: Float!
+  currency: String!
+  certificateUrl: URL
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  student: User!
+  course: Course!
+  progressPercentage: Float!
+  timeSpent: Int!
+  isCompleted: Boolean!
+  canGetCertificate: Boolean!
+  progress: [Progress!]!
+}
+
+type EnrollmentConnection {
+  edges: [EnrollmentEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type EnrollmentEdge {
+  node: Enrollment!
+  cursor: String!
+}
+
+type EnrollmentError implements Error {
+  message: String!
+  path: [String!]
+  field: String
+}
+
+interface Error {
+  message: String!
+  path: [String!]
+}
+
+type FileSubmission {
+  fileUrl: URL!
+  fileName: String!
+  fileSize: Int!
+  mimeType: String!
+}
+
+input FileSubmissionInput {
+  fileUrl: URL!
+  fileName: String!
+  fileSize: Int!
+  mimeType: String!
+}
+
+scalar JSON
+
+type Lesson implements Node & Timestamped {
+  id: ID!
+  title: String!
+  description: String
+  courseId: String!
+  order: Int!
+  type: LessonType!
+  content: LessonContent!
+  duration: Int!
+  isPublished: Boolean!
+  isFree: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  course: Course!
+  previousLesson: Lesson
+  nextLesson: Lesson
+  progress: [Progress!]!
+}
+
+type LessonAnalytics {
+  lessonId: ID!
+  viewCount: Int!
+  completionCount: Int!
+  averageTimeSpent: Int!
+  dropoffRate: Float!
+}
+
+union LessonContent = VideoContent | TextContent | QuizContent | AssignmentContent
+
+input LessonContentInput {
+  video: VideoContentInput
+  text: TextContentInput
+  quiz: QuizContentInput
+  assignment: AssignmentContentInput
+}
+
+type LessonError implements Error {
+  message: String!
+  path: [String!]
+  field: String
+}
+
+enum LessonType {
+  VIDEO
+  TEXT
+  QUIZ
+  ASSIGNMENT
+  LIVE_SESSION
+}
+
+type Mutation {
+  enrollInCourse(courseId: ID!): EnrollInCoursePayload!
+  unenrollFromCourse(courseId: ID!): UnenrollFromCoursePayload!
+  updateEnrollment(input: UpdateEnrollmentInput!): UpdateEnrollmentPayload!
+  createLesson(input: CreateLessonInput!): CreateLessonPayload!
+  updateLesson(input: UpdateLessonInput!): UpdateLessonPayload!
+  deleteLesson(id: ID!): DeleteLessonPayload!
+  reorderLessons(courseId: ID!, lessonIds: [ID!]!): ReorderLessonsPayload!
+  updateProgress(input: UpdateProgressInput!): UpdateProgressPayload!
+  completeLesson(lessonId: ID!): CompleteLessonPayload!
+  submitAssignment(input: SubmitAssignmentInput!): SubmitAssignmentPayload!
+  startQuizAttempt(quizId: ID!): StartQuizAttemptPayload!
+  submitQuizAttempt(input: SubmitQuizAttemptInput!): SubmitQuizAttemptPayload!
+  createUser(input: CreateUserInput!): CreateUserPayload!
+  updateUser(input: UpdateUserInput!): UpdateUserPayload!
+  deleteUser(id: ID!): DeleteUserPayload!
+  createQuiz(input: CreateQuizInput!): CreateQuizPayload!
+  updateQuiz(input: UpdateQuizInput!): UpdateQuizPayload!
+  deleteQuiz(id: ID!): DeleteQuizPayload!
+  createQuestion(input: CreateQuestionInput!): CreateQuestionPayload!
+  updateQuestion(input: UpdateQuestionInput!): UpdateQuestionPayload!
+  deleteQuestion(id: ID!): DeleteQuestionPayload!
+  createCategory(input: CreateCategoryInput!): CreateCategoryPayload!
+  updateCategory(input: UpdateCategoryInput!): UpdateCategoryPayload!
+  deleteCategory(id: ID!): DeleteCategoryPayload!
+  createCourse(input: CreateCourseInput!): CreateCoursePayload!
+  updateCourse(input: UpdateCourseInput!): UpdateCoursePayload!
+  deleteCourse(id: ID!): DeleteCoursePayload!
+}
+
+interface Node {
+  id: ID!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  FREE
+}
+
+input PriceRangeInput {
+  min: Float
+  max: Float
+}
+
+type Progress implements Node & Timestamped {
+  id: ID!
+  userId: String!
+  lessonId: String!
+  enrollmentId: String!
+  status: ProgressStatus!
+  completedAt: DateTime
+  timeSpent: Int!
+  watchedDuration: Int
+  score: Float
+  attempts: Int!
+  lastAttemptAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  user: User!
+  lesson: Lesson!
+  enrollment: Enrollment!
+  submissions: [Submission!]!
+}
+
+type ProgressConnection {
+  edges: [ProgressEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type ProgressEdge {
+  node: Progress!
+  cursor: String!
+}
+
+type ProgressError implements Error {
+  message: String!
+  path: [String!]
+  field: String
+}
+
+enum ProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+}
+
+type Query {
+  node(id: ID!): Node
+  nodes(ids: [ID!]!): [Node]!
+  lesson(id: ID!): Lesson
+  lessonsForCourse(courseId: ID!): [Lesson!]!
+  quiz(id: ID!): Quiz
+  quizzes(first: Int, after: String, last: Int, before: String): QuizConnection!
+  enrollment(id: ID!): Enrollment
+  myEnrollments: [Enrollment!]!
+  enrollmentsForCourse(courseId: ID!): EnrollmentConnection!
+  progress(id: ID!): Progress
+  myProgress(courseId: ID): ProgressConnection!
+  progressForCourse(courseId: ID!): ProgressConnection!
+  progressForLesson(lessonId: ID!): ProgressConnection!
+  category(id: ID, slug: String): Category
+  categories: [Category!]!
+  quizAttempt(id: ID!): QuizAttempt
+  myQuizAttempts(quizId: ID): [QuizAttempt!]!
+  search(query: String!, type: SearchType, first: Int, after: String): SearchConnection!
+  courseAnalytics(courseId: ID!): CourseAnalytics!
+  me: User
+  user(id: ID!): User
+  users(first: Int, after: String, last: Int, before: String, filter: UserFilter): UserConnection!
+  course(id: ID, slug: String): Course
+  courses(first: Int, after: String, last: Int, before: String, filter: CourseFilter): CourseConnection!
+}
+
+type Question {
+  id: ID!
+  quizId: String!
+  type: QuestionType!
+  question: String!
+  explanation: String
+  points: Float!
+  order: Int!
+  isRequired: Boolean!
+  options: [QuestionOption!]!
+  quiz: Quiz!
+  responses: [QuestionResponse!]!
+}
+
+type QuestionOption {
+  id: ID!
+  text: String!
+  isCorrect: Boolean!
+  explanation: String
+}
+
+input QuestionOptionInput {
+  text: String!
+  isCorrect: Boolean!
+  explanation: String
+}
+
+type QuestionResponse {
+  id: ID!
+  attemptId: String!
+  questionId: String!
+  selectedOptions: [ID!]!
+  textAnswer: String
+  isCorrect: Boolean
+  points: Float!
+  attempt: QuizAttempt!
+  question: Question!
+}
+
+input QuestionResponseInput {
+  questionId: ID!
+  selectedOptions: [ID!]
+  textAnswer: String
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  MULTIPLE_SELECT
+  TRUE_FALSE
+  SHORT_ANSWER
+  ESSAY
+  FILL_IN_BLANK
+  MATCHING
+  ORDERING
+}
+
+type Quiz implements Node & Timestamped {
+  id: ID!
+  title: String!
+  description: String
+  instructions: String
+  timeLimit: Int
+  maxAttempts: Int
+  passingScore: Float!
+  randomizeQuestions: Boolean!
+  showCorrectAnswers: Boolean!
+  allowReview: Boolean!
+  isPublished: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  questions: [Question!]!
+  questionCount: Int!
+  averageScore: Float!
+  completionRate: Float!
+  attempts: [QuizAttempt!]!
+}
+
+type QuizAttempt implements Node & Timestamped {
+  id: ID!
+  userId: String!
+  quizId: String!
+  attemptNumber: Int!
+  startedAt: DateTime!
+  completedAt: DateTime
+  timeSpent: Int
+  score: Float
+  maxScore: Float!
+  percentage: Float
+  isPassed: Boolean
+  isCompleted: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  user: User!
+  quiz: Quiz!
+  responses: [QuestionResponse!]!
+}
+
+type QuizAttemptConnection {
+  edges: [QuizAttemptEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type QuizAttemptEdge {
+  node: QuizAttempt!
+  cursor: String!
+}
+
+type QuizAttemptError implements Error {
+  message: String!
+  path: [String!]
+  field: String
+}
+
+type QuizConnection {
+  edges: [QuizEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type QuizContent {
+  quizId: String!
+  quiz: Quiz!
+}
+
+input QuizContentInput {
+  quizId: String!
+}
+
+type QuizEdge {
+  node: Quiz!
+  cursor: String!
+}
+
+type QuizError implements Error {
+  message: String!
+  path: [String!]
+  field: String
+}
+
+type ReorderLessonsPayload {
+  lessons: [Lesson!]
+  errors: [LessonError!]!
+}
+
+type SearchConnection {
+  edges: [SearchEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type SearchEdge {
+  node: SearchResult!
+  cursor: String!
+}
+
+union SearchResult = Course | User
+
+enum SearchType {
+  COURSE
+  USER
+  ALL
+}
+
+type StartQuizAttemptPayload {
+  attempt: QuizAttempt
+  errors: [QuizAttemptError!]!
+}
+
+type Submission implements Timestamped {
+  id: ID!
+  progressId: String!
+  content: SubmissionData!
+  score: Float
+  feedback: String
+  gradedAt: DateTime
+  gradedBy: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  progress: Progress!
+  grader: User
+}
+
+union SubmissionData = TextSubmission | FileSubmission | CodeSubmission
+
+input SubmissionDataInput {
+  text: TextSubmissionInput
+  file: FileSubmissionInput
+  code: CodeSubmissionInput
+}
+
+enum SubmissionFormat {
+  TEXT
+  FILE
+  URL
+  CODE
+}
+
+input SubmitAssignmentInput {
+  progressId: ID!
+  submission: SubmissionDataInput!
+}
+
+type SubmitAssignmentPayload {
+  submission: Submission
+  errors: [ProgressError!]!
+}
+
+input SubmitQuizAttemptInput {
+  attemptId: ID!
+  responses: [QuestionResponseInput!]!
+}
+
+type SubmitQuizAttemptPayload {
+  attempt: QuizAttempt
+  errors: [QuizAttemptError!]!
+}
+
+type Subtitle {
+  language: String!
+  url: URL!
+}
+
+input SubtitleInput {
+  language: String!
+  url: URL!
+}
+
+type TextContent {
+  markdown: String!
+  readingTime: Int!
+}
+
+input TextContentInput {
+  markdown: String!
+  readingTime: Int!
+}
+
+type TextSubmission {
+  text: String!
+  wordCount: Int!
+}
+
+input TextSubmissionInput {
+  text: String!
+}
+
+interface Timestamped {
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+scalar URL
+
+type UnenrollFromCoursePayload {
+  deletedEnrollmentId: ID
+  errors: [EnrollmentError!]!
+}
+
+input UpdateCategoryInput {
+  id: ID!
+  name: String
+  slug: String
+  description: String
+  parentId: ID
+}
+
+type UpdateCategoryPayload {
+  category: Category
+  errors: [CategoryError!]!
+}
+
+input UpdateCourseInput {
+  id: ID!
+  title: String
+  description: String
+  shortDescription: String
+  categoryId: ID
+  price: Float
+  level: CourseLevel
+  requirements: [String!]
+  objectives: [String!]
+  tags: [String!]
+  isPublished: Boolean
+}
+
+type UpdateCoursePayload {
+  course: Course
+  errors: [CourseError!]!
+}
+
+input UpdateEnrollmentInput {
+  id: ID!
+  paymentStatus: PaymentStatus
+  certificateUrl: URL
+}
+
+type UpdateEnrollmentPayload {
+  enrollment: Enrollment
+  errors: [EnrollmentError!]!
+}
+
+input UpdateLessonInput {
+  id: ID!
+  title: String
+  description: String
+  order: Int
+  content: LessonContentInput
+  duration: Int
+  isFree: Boolean
+  isPublished: Boolean
+}
+
+type UpdateLessonPayload {
+  lesson: Lesson
+  errors: [LessonError!]!
+}
+
+input UpdateProgressInput {
+  lessonId: ID!
+  status: ProgressStatus!
+  timeSpent: Int
+  watchedDuration: Int
+}
+
+type UpdateProgressPayload {
+  progress: Progress
+  errors: [ProgressError!]!
+}
+
+input UpdateQuestionInput {
+  id: ID!
+  type: QuestionType
+  question: String
+  explanation: String
+  points: Float
+  order: Int
+  isRequired: Boolean
+  options: [QuestionOptionInput!]
+}
+
+type UpdateQuestionPayload {
+  question: Question
+  errors: [QuizError!]!
+}
+
+input UpdateQuizInput {
+  id: ID!
+  title: String
+  description: String
+  instructions: String
+  timeLimit: Int
+  maxAttempts: Int
+  passingScore: Float
+  randomizeQuestions: Boolean
+  showCorrectAnswers: Boolean
+  allowReview: Boolean
+  isPublished: Boolean
+}
+
+type UpdateQuizPayload {
+  quiz: Quiz
+  errors: [QuizError!]!
+}
+
+input UpdateUserInput {
+  id: ID!
+  username: String
+  firstName: String
+  lastName: String
+  avatarUrl: URL
+}
+
+type UpdateUserPayload {
+  user: User
+  errors: [UserError!]!
+}
+
+type User implements Node & Timestamped {
+  id: ID!
+  email: String!
+  username: String!
+  firstName: String!
+  lastName: String!
+  avatarUrl: URL
+  role: UserRole!
+  isActive: Boolean!
+  lastLoginAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  completedCourses: Int!
+  averageScore: Float!
+  progress: [Progress!]!
+  enrollments: [Enrollment!]!
+  teachingCourses: [Course!]!
+  quizAttempts: [QuizAttempt!]!
+}
+
+type UserConnection {
+  edges: [UserEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type UserEdge {
+  node: User!
+  cursor: String!
+}
+
+type UserError implements Error {
+  message: String!
+  path: [String!]
+  field: String
+}
+
+input UserFilter {
+  role: UserRole
+  isActive: Boolean
+  search: String
+}
+
+enum UserRole {
+  STUDENT
+  INSTRUCTOR
+  ADMIN
+}
+
+type VideoContent {
+  videoUrl: URL!
+  duration: Int!
+  subtitles: [Subtitle!]!
+  transcript: String
+}
+
+input VideoContentInput {
+  videoUrl: URL!
+  duration: Int!
+  subtitles: [SubtitleInput!]!
+  transcript: String
+}

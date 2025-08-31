@@ -1,0 +1,1275 @@
+{
+  "rootPackage": "simple",
+  "packages": {
+    "graphql": {
+      "id": "graphql",
+      "name": "graphql",
+      "subPackages": [],
+      "services": [
+        "graphql.UserService"
+      ]
+    }
+  },
+  "services": {
+    "graphql.UserService": {
+      "id": "graphql.UserService",
+      "name": "UserService",
+      "sources": [
+        "Comment",
+        "Mutation",
+        "Organization",
+        "Post",
+        "Profile",
+        "Query",
+        "User"
+      ],
+      "loaders": [
+        "Comment.by.id",
+        "Organization.by.id",
+        "Post.by.id",
+        "Profile.by.userId",
+        "User.by.email",
+        "User.by.id"
+      ],
+      "resolvers": [
+        "Mutation.createUser",
+        "Mutation.deleteUser",
+        "Mutation.updateUser",
+        "Organization.memberCount",
+        "Organization.members",
+        "Post.comments",
+        "Query.user",
+        "Query.users",
+        "User.posts"
+      ]
+    }
+  },
+  "definitions": {
+    "Comment": {
+      "object": {
+        "name": "Comment",
+        "fields": [
+          {
+            "name": "id",
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "ID"
+              }
+            }
+          },
+          {
+            "name": "content",
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "String"
+              }
+            }
+          },
+          {
+            "name": "postId",
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "ID"
+              }
+            },
+            "isInternal": true
+          },
+          {
+            "name": "authorId",
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "ID"
+              }
+            },
+            "isInternal": true
+          },
+          {
+            "name": "post",
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "Post"
+              }
+            },
+            "loadDirective": {
+              "with": {
+                "id": "postId"
+              }
+            }
+          },
+          {
+            "name": "author",
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "User"
+              }
+            },
+            "loadDirective": {
+              "with": {
+                "id": "authorId"
+              }
+            }
+          }
+        ],
+        "loaders": [
+          {
+            "keys": [
+              "id"
+            ],
+            "batch": true
+          }
+        ]
+      }
+    },
+    "CreateUserInput": {
+      "input": {
+        "name": "CreateUserInput",
+        "inputValues": [
+          {
+            "name": "email",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "String"
+              }
+            }
+          },
+          {
+            "name": "name",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "String"
+              }
+            }
+          },
+          {
+            "name": "age",
+            "type": {
+              "kind": "NAMED",
+              "named": "Int"
+            }
+          },
+          {
+            "name": "organizationId",
+            "type": {
+              "kind": "NAMED",
+              "named": "ID"
+            }
+          }
+        ]
+      }
+    },
+    "DateTime": {
+      "scalar": {
+        "name": "DateTime",
+        "description": "DateTime represents a date and time in ISO 8601 format.",
+        "mappedToProtoType": "string"
+      }
+    },
+    "Mutation": {
+      "object": {
+        "name": "Mutation",
+        "fields": [
+          {
+            "name": "createUser",
+            "args": [
+              {
+                "name": "input",
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "NAMED",
+                    "named": "CreateUserInput"
+                  }
+                }
+              }
+            ],
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "User"
+              }
+            },
+            "resolveDirective": {}
+          },
+          {
+            "name": "updateUser",
+            "args": [
+              {
+                "name": "id",
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "NAMED",
+                    "named": "ID"
+                  }
+                }
+              },
+              {
+                "name": "input",
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "NAMED",
+                    "named": "UpdateUserInput"
+                  }
+                }
+              }
+            ],
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "User"
+              }
+            },
+            "resolveDirective": {}
+          },
+          {
+            "name": "deleteUser",
+            "args": [
+              {
+                "name": "id",
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "NAMED",
+                    "named": "ID"
+                  }
+                }
+              }
+            ],
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "Boolean"
+              }
+            },
+            "resolveDirective": {}
+          }
+        ]
+      }
+    },
+    "Organization": {
+      "object": {
+        "name": "Organization",
+        "fields": [
+          {
+            "name": "id",
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "ID"
+              }
+            }
+          },
+          {
+            "name": "name",
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "String"
+              }
+            }
+          },
+          {
+            "name": "description",
+            "fieldType": {
+              "kind": "NAMED",
+              "named": "String"
+            }
+          },
+          {
+            "name": "memberCount",
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "Int"
+              }
+            },
+            "resolveDirective": {}
+          },
+          {
+            "name": "members",
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "LIST",
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "NAMED",
+                    "named": "User"
+                  }
+                }
+              }
+            },
+            "resolveDirective": {
+              "with": {
+                "organizationId": "id"
+              }
+            }
+          }
+        ],
+        "loaders": [
+          {
+            "keys": [
+              "id"
+            ],
+            "batch": true
+          }
+        ]
+      }
+    },
+    "Post": {
+      "object": {
+        "name": "Post",
+        "fields": [
+          {
+            "name": "id",
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "ID"
+              }
+            }
+          },
+          {
+            "name": "title",
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "String"
+              }
+            }
+          },
+          {
+            "name": "content",
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "String"
+              }
+            }
+          },
+          {
+            "name": "published",
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "Boolean"
+              }
+            }
+          },
+          {
+            "name": "authorId",
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "ID"
+              }
+            },
+            "isInternal": true
+          },
+          {
+            "name": "author",
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "User"
+              }
+            },
+            "loadDirective": {
+              "with": {
+                "id": "authorId"
+              }
+            }
+          },
+          {
+            "name": "comments",
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "LIST",
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "NAMED",
+                    "named": "Comment"
+                  }
+                }
+              }
+            },
+            "resolveDirective": {
+              "with": {
+                "postId": "id"
+              }
+            }
+          }
+        ],
+        "loaders": [
+          {
+            "keys": [
+              "id"
+            ],
+            "batch": true
+          }
+        ]
+      }
+    },
+    "Profile": {
+      "object": {
+        "name": "Profile",
+        "fields": [
+          {
+            "name": "id",
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "ID"
+              }
+            }
+          },
+          {
+            "name": "userId",
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "ID"
+              }
+            },
+            "isInternal": true
+          },
+          {
+            "name": "bio",
+            "fieldType": {
+              "kind": "NAMED",
+              "named": "String"
+            }
+          },
+          {
+            "name": "avatarUrl",
+            "fieldType": {
+              "kind": "NAMED",
+              "named": "String"
+            }
+          },
+          {
+            "name": "user",
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "User"
+              }
+            },
+            "loadDirective": {
+              "with": {
+                "id": "userId"
+              }
+            }
+          }
+        ],
+        "loaders": [
+          {
+            "keys": [
+              "userId"
+            ],
+            "batch": true
+          }
+        ]
+      }
+    },
+    "Query": {
+      "object": {
+        "name": "Query",
+        "fields": [
+          {
+            "name": "user",
+            "description": "Fetch a user by ID.",
+            "args": [
+              {
+                "name": "id",
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "NAMED",
+                    "named": "ID"
+                  }
+                }
+              }
+            ],
+            "fieldType": {
+              "kind": "NAMED",
+              "named": "User"
+            },
+            "resolveDirective": {}
+          },
+          {
+            "name": "users",
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "LIST",
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "NAMED",
+                    "named": "User"
+                  }
+                }
+              }
+            },
+            "resolveDirective": {}
+          }
+        ]
+      }
+    },
+    "UpdateUserInput": {
+      "input": {
+        "name": "UpdateUserInput",
+        "inputValues": [
+          {
+            "name": "email",
+            "type": {
+              "kind": "NAMED",
+              "named": "String"
+            }
+          },
+          {
+            "name": "name",
+            "type": {
+              "kind": "NAMED",
+              "named": "String"
+            }
+          },
+          {
+            "name": "age",
+            "type": {
+              "kind": "NAMED",
+              "named": "Int"
+            }
+          },
+          {
+            "name": "isActive",
+            "type": {
+              "kind": "NAMED",
+              "named": "Boolean"
+            }
+          }
+        ]
+      }
+    },
+    "User": {
+      "object": {
+        "name": "User",
+        "fields": [
+          {
+            "name": "id",
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "ID"
+              }
+            }
+          },
+          {
+            "name": "email",
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "String"
+              }
+            }
+          },
+          {
+            "name": "name",
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "String"
+              }
+            }
+          },
+          {
+            "name": "age",
+            "fieldType": {
+              "kind": "NAMED",
+              "named": "Int"
+            }
+          },
+          {
+            "name": "isActive",
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "Boolean"
+              }
+            }
+          },
+          {
+            "name": "createdAt",
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "DateTime"
+              }
+            }
+          },
+          {
+            "name": "updatedAt",
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "NAMED",
+                "named": "DateTime"
+              }
+            }
+          },
+          {
+            "name": "organizationId",
+            "fieldType": {
+              "kind": "NAMED",
+              "named": "ID"
+            },
+            "isInternal": true
+          },
+          {
+            "name": "organization",
+            "fieldType": {
+              "kind": "NAMED",
+              "named": "Organization"
+            },
+            "loadDirective": {
+              "with": {
+                "id": "organizationId"
+              }
+            }
+          },
+          {
+            "name": "posts",
+            "fieldType": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "LIST",
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "NAMED",
+                    "named": "Post"
+                  }
+                }
+              }
+            },
+            "resolveDirective": {
+              "with": {
+                "authorId": "id"
+              }
+            }
+          },
+          {
+            "name": "profile",
+            "fieldType": {
+              "kind": "NAMED",
+              "named": "Profile"
+            },
+            "loadDirective": {
+              "with": {
+                "userId": "id"
+              }
+            }
+          }
+        ],
+        "loaders": [
+          {
+            "keys": [
+              "id"
+            ],
+            "batch": true
+          },
+          {
+            "keys": [
+              "email"
+            ],
+            "batch": true
+          }
+        ]
+      }
+    }
+  },
+  "extensions": {},
+  "directives": {},
+  "sources": {
+    "Comment": {
+      "id": "Comment",
+      "name": "Comment",
+      "baseType": "Comment",
+      "fields": [
+        {
+          "name": "authorId",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "ID"
+            }
+          }
+        },
+        {
+          "name": "content",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "String"
+            }
+          }
+        },
+        {
+          "name": "id",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "ID"
+            }
+          }
+        },
+        {
+          "name": "postId",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "ID"
+            }
+          }
+        }
+      ]
+    },
+    "Mutation": {
+      "id": "Mutation",
+      "name": "Mutation",
+      "baseType": "Mutation"
+    },
+    "Organization": {
+      "id": "Organization",
+      "name": "Organization",
+      "baseType": "Organization",
+      "fields": [
+        {
+          "name": "description",
+          "type": {
+            "kind": "NAMED",
+            "named": "String"
+          }
+        },
+        {
+          "name": "id",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "ID"
+            }
+          }
+        },
+        {
+          "name": "name",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "String"
+            }
+          }
+        }
+      ]
+    },
+    "Post": {
+      "id": "Post",
+      "name": "Post",
+      "baseType": "Post",
+      "fields": [
+        {
+          "name": "authorId",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "ID"
+            }
+          }
+        },
+        {
+          "name": "content",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "String"
+            }
+          }
+        },
+        {
+          "name": "id",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "ID"
+            }
+          }
+        },
+        {
+          "name": "published",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "Boolean"
+            }
+          }
+        },
+        {
+          "name": "title",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "String"
+            }
+          }
+        }
+      ]
+    },
+    "Profile": {
+      "id": "Profile",
+      "name": "Profile",
+      "baseType": "Profile",
+      "fields": [
+        {
+          "name": "avatarUrl",
+          "type": {
+            "kind": "NAMED",
+            "named": "String"
+          }
+        },
+        {
+          "name": "bio",
+          "type": {
+            "kind": "NAMED",
+            "named": "String"
+          }
+        },
+        {
+          "name": "id",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "ID"
+            }
+          }
+        },
+        {
+          "name": "userId",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "ID"
+            }
+          }
+        }
+      ]
+    },
+    "Query": {
+      "id": "Query",
+      "name": "Query",
+      "baseType": "Query"
+    },
+    "User": {
+      "id": "User",
+      "name": "User",
+      "baseType": "User",
+      "fields": [
+        {
+          "name": "age",
+          "type": {
+            "kind": "NAMED",
+            "named": "Int"
+          }
+        },
+        {
+          "name": "createdAt",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "DateTime"
+            }
+          }
+        },
+        {
+          "name": "email",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "String"
+            }
+          }
+        },
+        {
+          "name": "id",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "ID"
+            }
+          }
+        },
+        {
+          "name": "isActive",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "Boolean"
+            }
+          }
+        },
+        {
+          "name": "name",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "String"
+            }
+          }
+        },
+        {
+          "name": "organizationId",
+          "type": {
+            "kind": "NAMED",
+            "named": "ID"
+          }
+        },
+        {
+          "name": "updatedAt",
+          "type": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "DateTime"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "loaders": {
+    "Comment.by.id": {
+      "id": "Comment.by.id",
+      "targetType": "Comment",
+      "keyFields": [
+        "id"
+      ],
+      "batch": true
+    },
+    "Organization.by.id": {
+      "id": "Organization.by.id",
+      "targetType": "Organization",
+      "keyFields": [
+        "id"
+      ],
+      "batch": true
+    },
+    "Post.by.id": {
+      "id": "Post.by.id",
+      "targetType": "Post",
+      "keyFields": [
+        "id"
+      ],
+      "batch": true
+    },
+    "Profile.by.userId": {
+      "id": "Profile.by.userId",
+      "targetType": "Profile",
+      "keyFields": [
+        "userId"
+      ],
+      "batch": true
+    },
+    "User.by.email": {
+      "id": "User.by.email",
+      "targetType": "User",
+      "keyFields": [
+        "email"
+      ],
+      "batch": true
+    },
+    "User.by.id": {
+      "id": "User.by.id",
+      "targetType": "User",
+      "keyFields": [
+        "id"
+      ],
+      "batch": true
+    }
+  },
+  "resolvers": {
+    "Mutation.createUser": {
+      "id": "Mutation.createUser",
+      "parent": "Mutation",
+      "field": "createUser",
+      "args": {
+        "input": {
+          "kind": "NON_NULL",
+          "ofType": {
+            "kind": "NAMED",
+            "named": "CreateUserInput"
+          }
+        }
+      },
+      "returnType": {
+        "kind": "NON_NULL",
+        "ofType": {
+          "kind": "NAMED",
+          "named": "User"
+        }
+      }
+    },
+    "Mutation.deleteUser": {
+      "id": "Mutation.deleteUser",
+      "parent": "Mutation",
+      "field": "deleteUser",
+      "args": {
+        "id": {
+          "kind": "NON_NULL",
+          "ofType": {
+            "kind": "NAMED",
+            "named": "ID"
+          }
+        }
+      },
+      "returnType": {
+        "kind": "NON_NULL",
+        "ofType": {
+          "kind": "NAMED",
+          "named": "Boolean"
+        }
+      }
+    },
+    "Mutation.updateUser": {
+      "id": "Mutation.updateUser",
+      "parent": "Mutation",
+      "field": "updateUser",
+      "args": {
+        "id": {
+          "kind": "NON_NULL",
+          "ofType": {
+            "kind": "NAMED",
+            "named": "ID"
+          }
+        },
+        "input": {
+          "kind": "NON_NULL",
+          "ofType": {
+            "kind": "NAMED",
+            "named": "UpdateUserInput"
+          }
+        }
+      },
+      "returnType": {
+        "kind": "NON_NULL",
+        "ofType": {
+          "kind": "NAMED",
+          "named": "User"
+        }
+      }
+    },
+    "Organization.memberCount": {
+      "id": "Organization.memberCount",
+      "parent": "Organization",
+      "field": "memberCount",
+      "returnType": {
+        "kind": "NON_NULL",
+        "ofType": {
+          "kind": "NAMED",
+          "named": "Int"
+        }
+      }
+    },
+    "Organization.members": {
+      "id": "Organization.members",
+      "parent": "Organization",
+      "field": "members",
+      "args": {
+        "organizationId": {
+          "kind": "NON_NULL",
+          "ofType": {
+            "kind": "NAMED",
+            "named": "ID"
+          }
+        }
+      },
+      "returnType": {
+        "kind": "NON_NULL",
+        "ofType": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "User"
+            }
+          }
+        }
+      }
+    },
+    "Post.comments": {
+      "id": "Post.comments",
+      "parent": "Post",
+      "field": "comments",
+      "args": {
+        "postId": {
+          "kind": "NON_NULL",
+          "ofType": {
+            "kind": "NAMED",
+            "named": "ID"
+          }
+        }
+      },
+      "returnType": {
+        "kind": "NON_NULL",
+        "ofType": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "Comment"
+            }
+          }
+        }
+      }
+    },
+    "Query.user": {
+      "id": "Query.user",
+      "parent": "Query",
+      "field": "user",
+      "args": {
+        "id": {
+          "kind": "NON_NULL",
+          "ofType": {
+            "kind": "NAMED",
+            "named": "ID"
+          }
+        }
+      },
+      "returnType": {
+        "kind": "NAMED",
+        "named": "User"
+      },
+      "description": "Fetch a user by ID."
+    },
+    "Query.users": {
+      "id": "Query.users",
+      "parent": "Query",
+      "field": "users",
+      "returnType": {
+        "kind": "NON_NULL",
+        "ofType": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "User"
+            }
+          }
+        }
+      }
+    },
+    "User.posts": {
+      "id": "User.posts",
+      "parent": "User",
+      "field": "posts",
+      "args": {
+        "authorId": {
+          "kind": "NON_NULL",
+          "ofType": {
+            "kind": "NAMED",
+            "named": "ID"
+          }
+        }
+      },
+      "returnType": {
+        "kind": "NON_NULL",
+        "ofType": {
+          "kind": "LIST",
+          "ofType": {
+            "kind": "NON_NULL",
+            "ofType": {
+              "kind": "NAMED",
+              "named": "Post"
+            }
+          }
+        }
+      }
+    }
+  },
+  "extensionIndex": {},
+  "typeToFile": {
+    "Comment": "graphql/user.graphql",
+    "CreateUserInput": "graphql/user.graphql",
+    "DateTime": "graphql/user.graphql",
+    "Mutation": "graphql/user.graphql",
+    "Organization": "graphql/user.graphql",
+    "Post": "graphql/user.graphql",
+    "Profile": "graphql/user.graphql",
+    "Query": "graphql/user.graphql",
+    "UpdateUserInput": "graphql/user.graphql",
+    "User": "graphql/user.graphql"
+  },
+  "fileToService": {
+    "graphql/user.graphql": "graphql.UserService"
+  },
+  "violations": null
+}

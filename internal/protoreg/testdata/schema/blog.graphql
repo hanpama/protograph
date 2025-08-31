@@ -1,0 +1,107 @@
+interface Node {
+    """
+    Global identifier
+    """
+    id: ID!
+}
+
+type User implements Node @loader {
+    """
+    User identifier
+    """
+    id: ID!
+    """
+    Name of the user
+    """
+    name: String!
+    """
+    User role
+    """
+    role: Role!
+}
+
+type Post implements Node {
+    """
+    Post identifier
+    """
+    id: ID!
+    """
+    Post title
+    """
+    title: String!
+    """
+    Post content
+    """
+    content: String!
+    """
+    Post author
+    """
+    author: User! @load(with: { id: "authorId" })
+    """
+    Author identifier
+    """
+    authorId: ID! @internal
+    """
+    Number of likes for this post
+    """
+    likeCount(
+        """
+        limit number of likes to count
+        """
+        limit: Int!
+    ): Int! @resolve(batch: true)
+}
+
+union SearchResult = User | Post
+
+input UserInput {
+    """
+    Name for new user
+    """
+    name: String!
+    """
+    Age of the user
+    """
+    age: Int
+}
+
+scalar DateTime @mapScalar(toProtobuf: "string")
+
+enum Role {
+    """
+    Administrator role
+    """
+    ADMIN
+    """
+    Standard user role
+    """
+    USER
+    """
+    Guest user role
+    """
+    GUEST
+}
+
+extend type Query {
+    """
+    Fetch a user by id
+    """
+    getUser(
+        """
+        identifier of the user
+        """
+        id: ID!
+    ): User
+}
+
+extend type Mutation {
+    """
+    Create a new user
+    """
+    createUser(
+        """
+        input payload
+        """
+        input: UserInput!
+    ): User
+}

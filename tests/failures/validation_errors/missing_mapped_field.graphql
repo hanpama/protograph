@@ -1,0 +1,14 @@
+# This should fail: @load references non-existent parent field
+
+type User @loader {
+  id: ID!
+  name: String!
+}
+
+type Post {
+  id: ID!
+  title: String!
+  
+  # ERROR: "authorId" doesn't exist on Post type
+  author: User! @load(with: { "id": "authorId" })
+}

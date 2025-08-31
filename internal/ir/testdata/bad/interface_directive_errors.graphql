@@ -1,0 +1,5 @@
+schema { query: Query }
+
+interface Thing { id: ID! @loader(key: "id") } # error: directive on interface field
+
+type Query { t(id: ID!): Thing }

@@ -1,0 +1,67 @@
+# Package: courses
+# Service: CategoryService
+
+type Category implements Node @loader @loader(key: "slug") {
+  id: ID!
+  name: String!
+  slug: String!
+  description: String
+  parentId: String @internal
+  
+  # Self-references are allowed
+  parent: Category @load(with: { id: "parentId" })
+  children: [Category!]! @load(with: { parentId: "id" })
+  
+  # Forward reference to Course
+  courses: [Course!]! @load(with: { categoryId: "id" })
+}
+
+# Category-related queries and mutations
+extend type Query {
+  category(id: ID, slug: String): Category
+  categories: [Category!]!
+}
+
+extend type Mutation {
+  createCategory(input: CreateCategoryInput!): CreateCategoryPayload!
+  updateCategory(input: UpdateCategoryInput!): UpdateCategoryPayload!
+  deleteCategory(id: ID!): DeleteCategoryPayload!
+}
+
+# Input types
+input CreateCategoryInput {
+  name: String!
+  slug: String!
+  description: String
+  parentId: ID
+}
+
+input UpdateCategoryInput {
+  id: ID!
+  name: String
+  slug: String
+  description: String
+  parentId: ID
+}
+
+# Payload types
+type CreateCategoryPayload {
+  category: Category
+  errors: [CategoryError!]!
+}
+
+type UpdateCategoryPayload {
+  category: Category
+  errors: [CategoryError!]!
+}
+
+type DeleteCategoryPayload {
+  deletedCategoryId: ID
+  errors: [CategoryError!]!
+}
+
+type CategoryError implements Error {
+  message: String!
+  path: [String!]
+  field: String
+}

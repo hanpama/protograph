@@ -1,0 +1,133 @@
+syntax = "proto3";
+
+package testdata.proto;
+
+message NodeSource {
+  oneof value {
+    UserSource User = 27303;
+
+    PostSource Post = 23707;
+  }
+}
+
+message UserSource {
+  // User identifier
+  string id = 23236;
+
+  // Name of the user
+  string name = 29928;
+
+  // User role
+  RoleSource role = 15130;
+}
+
+message PostSource {
+  // Post identifier
+  string id = 23236;
+
+  // Post title
+  string title = 3552;
+
+  // Post content
+  string content = 24511;
+
+  // Author identifier
+  string author_id = 29641;
+}
+
+message SearchResultSource {
+  oneof value {
+    UserSource User = 27303;
+
+    PostSource Post = 23707;
+  }
+}
+
+message UserInputSource {
+  // Name for new user
+  string name = 29928;
+
+  // Age of the user
+  int32 age = 17865;
+}
+
+message ResolvePostLikeCountRequest {
+  // limit number of likes to count
+  int32 limit = 5167;
+
+  // Post identifier
+  string id = 23236;
+}
+
+message ResolvePostLikeCountResponse {
+  int32 data = 1;
+}
+
+message BatchResolvePostLikeCountRequest {
+  repeated ResolvePostLikeCountRequest batches = 1;
+}
+
+message BatchResolvePostLikeCountResponse {
+  repeated ResolvePostLikeCountResponse batches = 1;
+}
+
+message ResolveQueryGetUserRequest {
+  // identifier of the user
+  string id = 23236;
+}
+
+message ResolveQueryGetUserResponse {
+  UserSource data = 1;
+}
+
+message ResolveMutationCreateUserRequest {
+  // input payload
+  UserInputSource input = 23683;
+}
+
+message ResolveMutationCreateUserResponse {
+  UserSource data = 1;
+}
+
+message BatchLoadUserByIdRequest {
+  repeated LoadUserByIdRequest batches = 1;
+}
+
+message BatchLoadUserByIdResponse {
+  repeated LoadUserByIdResponse batches = 1;
+}
+
+message LoadUserByIdRequest {
+  // User identifier
+  string id = 23236;
+}
+
+message LoadUserByIdResponse {
+  UserSource data = 1;
+}
+
+enum RoleSource {
+  ROLE_UNSPECIFIED = 0;
+
+  // Administrator role
+  ROLE_ADMIN = 31202;
+
+  // Standard user role
+  ROLE_USER = 4946;
+
+  // Guest user role
+  ROLE_GUEST = 22164;
+}
+
+service BlogService {
+  // Number of likes for this post
+  rpc BatchResolvePostLikeCount ( BatchResolvePostLikeCountRequest ) returns ( BatchResolvePostLikeCountResponse );
+
+  // Fetch a user by id
+  rpc ResolveQueryGetUser ( ResolveQueryGetUserRequest ) returns ( ResolveQueryGetUserResponse );
+
+  // Create a new user
+  rpc ResolveMutationCreateUser ( ResolveMutationCreateUserRequest ) returns ( ResolveMutationCreateUserResponse );
+
+  rpc BatchLoadUserById ( BatchLoadUserByIdRequest ) returns ( BatchLoadUserByIdResponse );
+}

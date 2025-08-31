@@ -1,0 +1,14 @@
+schema { query: Query }
+
+type Query { post(id: ID!): Post }
+
+type Post @loader(key: "id") {
+  id: ID! @id
+  authorId: ID!
+  author: User @load(with: { id: "missing" }) # error: missing parent field
+}
+
+type User @loader(key: "id") {
+  id: ID! @id
+  name: String!
+}
