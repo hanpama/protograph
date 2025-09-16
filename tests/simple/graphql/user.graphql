@@ -1,11 +1,19 @@
 # Simple test schema for basic analyzer functionality
 
+interface Node {
+  id: ID!
+}
+
+union SearchResult = User | Organization | Post
+
 type Query {
   """
   Fetch a user by ID.
   """
   user(id: ID!): User @resolve
   users: [User!]! @resolve
+  node(id: ID!): Node @resolve
+  search(term: String!): [SearchResult!]! @resolve
 }
 
 type Mutation {
@@ -14,7 +22,7 @@ type Mutation {
   deleteUser(id: ID!): Boolean! @resolve
 }
 
-type User @loader @loader(key: "email") {
+type User implements Node @loader @loader(key: "email") {
   id: ID!
   email: String!
   name: String!
@@ -32,7 +40,7 @@ type User @loader @loader(key: "email") {
   profile: Profile @load(with: {userId: "id"})
 }
 
-type Organization @loader {
+type Organization implements Node @loader {
   id: ID!
   name: String!
   description: String
@@ -44,7 +52,7 @@ type Organization @loader {
   members: [User!]! @resolve(with: {organizationId: "id"})
 }
 
-type Post @loader {
+type Post implements Node @loader {
   id: ID!
   title: String!
   content: String!
@@ -55,7 +63,7 @@ type Post @loader {
   comments: [Comment!]! @resolve(with: {postId: "id"})
 }
 
-type Comment @loader {
+type Comment implements Node @loader {
   id: ID!
   content: String!
   postId: ID! @internal
@@ -65,7 +73,7 @@ type Comment @loader {
   author: User! @load(with: {id: "authorId"})
 }
 
-type Profile @loader(key: "userId") {
+type Profile implements Node @loader(key: "userId") {
   id: ID!
   userId: ID! @internal
   bio: String

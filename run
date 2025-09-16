@@ -7,7 +7,7 @@ shift || true
 
 case $COMMAND in
   generate-test-proto)
-    go run github.com/hanpama/protograph/cmd/protograph compile-proto -root tests/simple/graphql -rootpkg simple -out tests/simple/proto
+    go run github.com/hanpama/protograph/cmd/protograph compile-proto -graphql.root tests/simple/graphql -graphql.rootpkg simple -out tests/simple/proto
     # Generate Go messages and gRPC service code
     protoc -I tests/simple/proto/simple \
       --go_out=tests/simple/server/grpcproto --go_opt=paths=source_relative,Muser.proto=grpcproto/,Mschema.proto=grpcproto/ \

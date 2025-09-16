@@ -445,6 +445,9 @@ func (r *Runtime) handleValue(fd protoreflect.FieldDescriptor, v protoreflect.Va
 		if decoded := r.unwrapInterfaceEnvelope(msg); decoded != nil {
 			return decoded
 		}
+		if union := r.unwrapUnionEnvelope(msg); union != nil {
+			return union
+		}
 		return msg
 	default:
 		return nil
@@ -512,6 +515,31 @@ func (r *Runtime) unwrapInterfaceEnvelope(msg protoreflect.Message) protoreflect
 		panic(fmt.Sprintf("grpcrt: failed to unmarshal payload for %s: %v", typeName, err))
 	}
 	return out
+}
+
+func (r *Runtime) unwrapUnionEnvelope(msg protoreflect.Message) protoreflect.Message {
+	if msg == nil {
+		return nil
+	}
+	desc := msg.Descriptor()
+	if desc == nil || desc.Oneofs().Len() != 1 {
+		return nil
+	}
+	oneofDesc := desc.Oneofs().Get(0)
+	if oneofDesc == nil || string(oneofDesc.Name()) != "value" {
+		return nil
+	}
+	fd := msg.WhichOneof(oneofDesc)
+	if fd == nil {
+		return nil
+	}
+	if fd.Kind() != protoreflect.MessageKind {
+		panic(fmt.Sprintf("grpcrt: union envelope %s has non-message variant %s", desc.FullName(), fd.FullName()))
+	}
+	if !msg.Has(fd) {
+		return nil
+	}
+	return msg.Get(fd).Message()
 }
 
 func setMessageFieldsByJSON(msg protoreflect.Message, data map[string]any) error {
