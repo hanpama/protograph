@@ -14,7 +14,8 @@ type Registry struct {
 	singleLoaderDescriptors   map[[2]string]protoreflect.MethodDescriptor
 	batchLoaderDescriptors    map[[2]string]protoreflect.MethodDescriptor
 	// requestFieldSourceMap optionally maps (objectType, field) -> request field name -> parent source field name
-	requestFieldSourceMap map[[2]string]map[string]string
+	requestFieldSourceMap    map[[2]string]map[string]string
+	sourceMessageDescriptors map[string]protoreflect.MessageDescriptor
 }
 
 // GetAllServiceFiles implements grpcrt.Registry.
@@ -54,6 +55,14 @@ func (r *Registry) GetRequestFieldSourceMapping(objectType, field string) map[st
 		return nil
 	}
 	return r.requestFieldSourceMap[[2]string{objectType, field}]
+}
+
+// GetSourceMessageDescriptor implements grpcrt.Registry.
+func (r *Registry) GetSourceMessageDescriptor(objectType string) protoreflect.MessageDescriptor {
+	if r == nil {
+		return nil
+	}
+	return r.sourceMessageDescriptors[objectType]
 }
 
 var _ grpcrt.Registry = (*Registry)(nil)
