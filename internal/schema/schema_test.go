@@ -36,7 +36,7 @@ func TestSchemaSnapshot(t *testing.T) {
 	require.NoError(t, err, "failed to build schema from IR")
 
 	// Convert to JSON for snapshot comparison
-	actual, err := json.MarshalIndent(schema, "", "  ")
+	actualJSON, err := json.MarshalIndent(schema, "", "  ")
 	require.NoError(t, err, "failed to marshal schema to JSON")
 
 	// Snapshot file path
@@ -44,18 +44,21 @@ func TestSchemaSnapshot(t *testing.T) {
 
 	// If snapshot doesn't exist, create it
 	if _, err := os.Stat(snapshotPath); os.IsNotExist(err) {
-		err := os.WriteFile(snapshotPath, actual, 0644)
+		err := os.WriteFile(snapshotPath, actualJSON, 0644)
 		require.NoError(t, err, "failed to write snapshot file")
 		t.Logf("Created snapshot file: %s", snapshotPath)
 		return
 	}
 
 	// Read existing snapshot
-	expected, err := os.ReadFile(snapshotPath)
+	expectedJSON, err := os.ReadFile(snapshotPath)
 	require.NoError(t, err, "failed to read snapshot file")
 
+	var expected Schema
+	require.NoError(t, json.Unmarshal(expectedJSON, &expected), "failed to unmarshal snapshot schema")
+
 	// Compare snapshots
-	if diff := cmp.Diff(string(expected), string(actual)); diff != "" {
+	if diff := cmp.Diff(&expected, schema); diff != "" {
 		t.Errorf("Schema snapshot mismatch (-want +got):\n%s", diff)
 	}
 }
