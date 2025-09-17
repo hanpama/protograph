@@ -371,7 +371,34 @@ func completeObjectValue(state *executionState, objectType *schema.Type, fields 
 }
 
 func completeAbstractValue(state *executionState, abstractTypeName string, fields []*language.Field, result any, path Path) any {
-	typeName, err := state.runtime.ResolveType(state.context, abstractTypeName, result)
+	abstractType := state.schema.Types[abstractTypeName]
+	if abstractType == nil {
+		state.addError(fmt.Sprintf("Unknown abstract type: %s", abstractTypeName), path)
+		return nil
+	}
+
+	var (
+		concrete any
+		err      error
+	)
+	switch abstractType.Kind {
+	case schema.TypeKindUnion:
+		concrete, err = state.runtime.ResolveUnionConcreteValue(state.context, abstractTypeName, result)
+	case schema.TypeKindInterface:
+		concrete, err = state.runtime.ResolveInterfaceConcreteValue(state.context, abstractTypeName, result)
+	default:
+		state.addError(fmt.Sprintf("Type %s is not an abstract type", abstractTypeName), path)
+		return nil
+	}
+	if err != nil {
+		state.addError(err.Error(), path)
+		return nil
+	}
+	if isNullish(concrete) {
+		return nil
+	}
+
+	typeName, err := state.runtime.ResolveType(state.context, abstractTypeName, concrete)
 	if err != nil {
 		state.addError(err.Error(), path)
 		return nil
@@ -381,7 +408,7 @@ func completeAbstractValue(state *executionState, abstractTypeName string, field
 		state.addError(fmt.Sprintf("Abstract type %s must resolve to an Object type at runtime. Got: %s", abstractTypeName, typeName), path)
 		return nil
 	}
-	return completeObjectValue(state, objectType, fields, result, path)
+	return completeObjectValue(state, objectType, fields, concrete, path)
 }
 
 func pathToString(path Path) string {

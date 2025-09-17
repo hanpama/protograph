@@ -10,6 +10,35 @@ import (
 	schema "github.com/hanpama/protograph/internal/schema"
 )
 
+type runtimeWithOverrides struct {
+	base *executor.MockRuntime
+	executor.Runtime
+	interfaceOverride func(context.Context, string, any) (any, error)
+	unionOverride     func(context.Context, string, any) (any, error)
+}
+
+func newRuntimeWithOverrides(base *executor.MockRuntime) *runtimeWithOverrides {
+	return &runtimeWithOverrides{base: base, Runtime: base}
+}
+
+func (r *runtimeWithOverrides) ResolveInterfaceConcreteValue(ctx context.Context, interfaceTypeName string, value any) (any, error) {
+	if r.interfaceOverride != nil {
+		return r.interfaceOverride(ctx, interfaceTypeName, value)
+	}
+	return r.Runtime.ResolveInterfaceConcreteValue(ctx, interfaceTypeName, value)
+}
+
+func (r *runtimeWithOverrides) ResolveUnionConcreteValue(ctx context.Context, unionTypeName string, value any) (any, error) {
+	if r.unionOverride != nil {
+		return r.unionOverride(ctx, unionTypeName, value)
+	}
+	return r.Runtime.ResolveUnionConcreteValue(ctx, unionTypeName, value)
+}
+
+func (r *runtimeWithOverrides) GetCalls() []executor.Call {
+	return r.base.GetCalls()
+}
+
 func newNonNullObjSchema() *schema.Schema {
 	return newSchemaWithQueryType(
 		newObjectType("Query", schema.NewField("obj", "", schema.NonNullType(schema.NamedType("Obj")))),
@@ -55,6 +84,17 @@ func newInterfaceSchema() *schema.Schema {
 	return newSchemaWithQueryType(
 		newObjectType("Query", schema.NewField("iface", "", schema.NamedType("Node"))),
 		nodeType,
+		objType,
+		newScalarType("String"),
+	)
+}
+
+func newUnionSchema() *schema.Schema {
+	unionType := schema.NewType("Result", schema.TypeKindUnion, "").AddPossibleType("Obj")
+	objType := newObjectType("Obj", schema.NewField("a", "", schema.NamedType("String")))
+	return newSchemaWithQueryType(
+		newObjectType("Query", schema.NewField("union", "", schema.NamedType("Result"))),
+		unionType,
 		objType,
 		newScalarType("String"),
 	)
@@ -384,6 +424,144 @@ func TestCompleteValue_Abstract_ResolveType_Result(t *testing.T) {
 		wantCalls := []executor.Call{{Kind: "sync", ObjectType: "Query", Field: "iface", Source: nil, Args: map[string]any{}, BatchID: 0}}
 		if diff := cmp.Diff(wantCalls, gotCalls); diff != "" {
 			t.Fatalf("Runtime calls mismatch (-want +got):\n%s", diff)
+		}
+	})
+}
+
+func TestCompleteValue_Abstract_ConcreteResolution(t *testing.T) {
+	t.Run("Interface resolver rewrites value before ResolveType", func(t *testing.T) {
+		sch := newInterfaceSchema()
+		base := executor.NewMockRuntime(map[string]executor.MockResolver{
+			"Query.iface": executor.NewMockValueResolver(map[string]any{"kind": "raw"}),
+			"Obj.a": func(ctx context.Context, src any, args map[string]any) (any, error) {
+				m, ok := src.(map[string]any)
+				if !ok || m["kind"] != "converted" {
+					t.Fatalf("unexpected source: %#v", src)
+				}
+				return "A", nil
+			},
+		})
+		rt := newRuntimeWithOverrides(base)
+		called := false
+		rt.interfaceOverride = func(ctx context.Context, interfaceTypeName string, value any) (any, error) {
+			called = true
+			m, ok := value.(map[string]any)
+			if !ok || m["kind"] != "raw" {
+				t.Fatalf("unexpected interface envelope: %#v", value)
+			}
+			return map[string]any{"kind": "converted"}, nil
+		}
+		executor.SetTypeResolver(base, func(value any) (string, error) {
+			m, ok := value.(map[string]any)
+			if !ok || m["kind"] != "converted" {
+				t.Fatalf("ResolveType received unexpected value: %#v", value)
+			}
+			return "Obj", nil
+		})
+
+		exec := executor.NewExecutor(rt, sch)
+		doc := mustParseQuery(t, "{ iface { a } }")
+		got := exec.ExecuteRequest(context.Background(), doc, "", nil, nil)
+		want := &executor.ExecutionResult{Data: map[string]any{"iface": map[string]any{"a": "A"}}, Errors: []executor.GraphQLError{}}
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Fatalf("ExecutionResult mismatch (-want +got):\n%s", diff)
+		}
+		if !called {
+			t.Fatalf("ResolveInterfaceConcreteValue was not invoked")
+		}
+	})
+
+	t.Run("Interface concrete resolution error surfaces", func(t *testing.T) {
+		sch := newInterfaceSchema()
+		base := executor.NewMockRuntime(map[string]executor.MockResolver{
+			"Query.iface": executor.NewMockValueResolver(map[string]any{"kind": "raw"}),
+		})
+		rt := newRuntimeWithOverrides(base)
+		rt.interfaceOverride = func(ctx context.Context, interfaceTypeName string, value any) (any, error) {
+			return nil, fmt.Errorf("decode failed")
+		}
+		executor.SetTypeResolver(base, func(value any) (string, error) {
+			t.Fatalf("ResolveType should not be called on error")
+			return "", nil
+		})
+
+		exec := executor.NewExecutor(rt, sch)
+		doc := mustParseQuery(t, "{ iface { a } }")
+		got := exec.ExecuteRequest(context.Background(), doc, "", nil, nil)
+		want := &executor.ExecutionResult{
+			Data:   map[string]any{"iface": nil},
+			Errors: []executor.GraphQLError{{Message: "decode failed", Path: executor.Path{"iface"}}},
+		}
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Fatalf("ExecutionResult mismatch (-want +got):\n%s", diff)
+		}
+	})
+
+	t.Run("Union resolver rewrites value before ResolveType", func(t *testing.T) {
+		sch := newUnionSchema()
+		base := executor.NewMockRuntime(map[string]executor.MockResolver{
+			"Query.union": executor.NewMockValueResolver(map[string]any{"kind": "raw"}),
+			"Obj.a": func(ctx context.Context, src any, args map[string]any) (any, error) {
+				m, ok := src.(map[string]any)
+				if !ok || m["kind"] != "converted" {
+					t.Fatalf("unexpected source: %#v", src)
+				}
+				return "A", nil
+			},
+		})
+		rt := newRuntimeWithOverrides(base)
+		called := false
+		rt.unionOverride = func(ctx context.Context, unionTypeName string, value any) (any, error) {
+			called = true
+			m, ok := value.(map[string]any)
+			if !ok || m["kind"] != "raw" {
+				t.Fatalf("unexpected union envelope: %#v", value)
+			}
+			return map[string]any{"kind": "converted"}, nil
+		}
+		executor.SetTypeResolver(base, func(value any) (string, error) {
+			m, ok := value.(map[string]any)
+			if !ok || m["kind"] != "converted" {
+				t.Fatalf("ResolveType received unexpected value: %#v", value)
+			}
+			return "Obj", nil
+		})
+
+		exec := executor.NewExecutor(rt, sch)
+		doc := mustParseQuery(t, "{ union { ... on Obj { a } } }")
+		got := exec.ExecuteRequest(context.Background(), doc, "", nil, nil)
+		want := &executor.ExecutionResult{Data: map[string]any{"union": map[string]any{"a": "A"}}, Errors: []executor.GraphQLError{}}
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Fatalf("ExecutionResult mismatch (-want +got):\n%s", diff)
+		}
+		if !called {
+			t.Fatalf("ResolveUnionConcreteValue was not invoked")
+		}
+	})
+
+	t.Run("Union concrete resolution error surfaces", func(t *testing.T) {
+		sch := newUnionSchema()
+		base := executor.NewMockRuntime(map[string]executor.MockResolver{
+			"Query.union": executor.NewMockValueResolver(map[string]any{"kind": "raw"}),
+		})
+		rt := newRuntimeWithOverrides(base)
+		rt.unionOverride = func(ctx context.Context, unionTypeName string, value any) (any, error) {
+			return nil, fmt.Errorf("decode failed")
+		}
+		executor.SetTypeResolver(base, func(value any) (string, error) {
+			t.Fatalf("ResolveType should not be called on error")
+			return "", nil
+		})
+
+		exec := executor.NewExecutor(rt, sch)
+		doc := mustParseQuery(t, "{ union { ... on Obj { a } } }")
+		got := exec.ExecuteRequest(context.Background(), doc, "", nil, nil)
+		want := &executor.ExecutionResult{
+			Data:   map[string]any{"union": nil},
+			Errors: []executor.GraphQLError{{Message: "decode failed", Path: executor.Path{"union"}}},
+		}
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Fatalf("ExecutionResult mismatch (-want +got):\n%s", diff)
 		}
 	})
 }

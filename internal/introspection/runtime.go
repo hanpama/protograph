@@ -90,6 +90,14 @@ func (r *runtime) ResolveType(ctx context.Context, abstractType string, value an
 	return r.base.ResolveType(ctx, abstractType, value)
 }
 
+func (r *runtime) ResolveUnionConcreteValue(ctx context.Context, unionTypeName string, value any) (any, error) {
+	return r.base.ResolveUnionConcreteValue(ctx, unionTypeName, value)
+}
+
+func (r *runtime) ResolveInterfaceConcreteValue(ctx context.Context, interfaceTypeName string, value any) (any, error) {
+	return r.base.ResolveInterfaceConcreteValue(ctx, interfaceTypeName, value)
+}
+
 func (r *runtime) SerializeLeafValue(ctx context.Context, typ string, value any) (any, error) {
 	return r.base.SerializeLeafValue(ctx, typ, value)
 }
