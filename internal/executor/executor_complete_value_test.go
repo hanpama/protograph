@@ -10,30 +10,62 @@ import (
 	schema "github.com/hanpama/protograph/internal/schema"
 )
 
+func newNonNullObjSchema() *schema.Schema {
+	return newSchemaWithQueryType(
+		newObjectType("Query", schema.NewField("obj", "", schema.NonNullType(schema.NamedType("Obj")))),
+		newObjectType(
+			"Obj",
+			schema.NewField("a", "", schema.NonNullType(schema.NamedType("String"))),
+			schema.NewField("b", "", schema.NonNullType(schema.NamedType("String"))).SetAsync(true),
+		),
+		newScalarType("String"),
+	)
+}
+
+func newListSchema(typeRef *schema.TypeRef) *schema.Schema {
+	return newSchemaWithQueryType(
+		newObjectType("Query", schema.NewField("list", "", typeRef)),
+		newScalarType("String"),
+	)
+}
+
+func newLeafSchema(typeRef *schema.TypeRef) *schema.Schema {
+	return newSchemaWithQueryType(
+		newObjectType("Query", schema.NewField("a", "", typeRef)),
+		newScalarType("String"),
+	)
+}
+
+func newObjectMixedSchema() *schema.Schema {
+	return newSchemaWithQueryType(
+		newObjectType("Query", schema.NewField("obj", "", schema.NamedType("Obj"))),
+		newObjectType(
+			"Obj",
+			schema.NewField("a", "", schema.NamedType("String")),
+			schema.NewField("b", "", schema.NamedType("String")).SetAsync(true),
+		),
+		newScalarType("String"),
+	)
+}
+
+func newInterfaceSchema() *schema.Schema {
+	nodeType := schema.NewType("Node", schema.TypeKindInterface, "").AddPossibleType("Obj")
+	objType := newObjectType("Obj", schema.NewField("a", "", schema.NamedType("String")))
+	objType.AddInterface("Node")
+	return newSchemaWithQueryType(
+		newObjectType("Query", schema.NewField("iface", "", schema.NamedType("Node"))),
+		nodeType,
+		objType,
+		newScalarType("String"),
+	)
+}
+
 // Pattern: Result comparison
 func TestCompleteValue_NonNull_Propagation_Result(t *testing.T) {
 	t.Run("Resolver error", func(t *testing.T) {
 		// Schema: type Query { obj: Obj! }
 		//         type Obj { a: String! b: String! @async }
-		sch := &schema.Schema{
-			QueryType: "Query",
-			Types: map[string]*schema.Type{
-				"Query": {
-					Name:   "Query",
-					Kind:   schema.TypeKindObject,
-					Fields: schema.NewFieldMap(&schema.Field{Name: "obj", Type: schema.NonNullType(schema.NamedType("Obj"))}),
-				},
-				"Obj": {
-					Name: "Obj",
-					Kind: schema.TypeKindObject,
-					Fields: schema.NewFieldMap(
-						&schema.Field{Name: "a", Type: schema.NonNullType(schema.NamedType("String")), Async: false},
-						&schema.Field{Name: "b", Type: schema.NonNullType(schema.NamedType("String")), Async: true},
-					),
-				},
-				"String": {Name: "String", Kind: schema.TypeKindScalar},
-			},
-		}
+		sch := newNonNullObjSchema()
 
 		// Runtime: obj resolves to empty map; a errors; b would return "B" but must be cancelled.
 		rt := executor.NewMockRuntime(map[string]executor.MockResolver{
@@ -72,25 +104,7 @@ func TestCompleteValue_NonNull_Propagation_Result(t *testing.T) {
 	t.Run("Resolver returns null", func(t *testing.T) {
 		// Schema: type Query { obj: Obj! }
 		//         type Obj { a: String! b: String! @async }
-		sch := &schema.Schema{
-			QueryType: "Query",
-			Types: map[string]*schema.Type{
-				"Query": {
-					Name:   "Query",
-					Kind:   schema.TypeKindObject,
-					Fields: schema.NewFieldMap(&schema.Field{Name: "obj", Type: schema.NonNullType(schema.NamedType("Obj"))}),
-				},
-				"Obj": {
-					Name: "Obj",
-					Kind: schema.TypeKindObject,
-					Fields: schema.NewFieldMap(
-						&schema.Field{Name: "a", Type: schema.NonNullType(schema.NamedType("String")), Async: false},
-						&schema.Field{Name: "b", Type: schema.NonNullType(schema.NamedType("String")), Async: true},
-					),
-				},
-				"String": {Name: "String", Kind: schema.TypeKindScalar},
-			},
-		}
+		sch := newNonNullObjSchema()
 
 		// Runtime: obj resolves to empty map; a returns nil; b would return "B" but must be cancelled.
 		rt := executor.NewMockRuntime(map[string]executor.MockResolver{
@@ -128,17 +142,7 @@ func TestCompleteValue_NonNull_Propagation_Result(t *testing.T) {
 // Pattern: Result comparison
 func TestCompleteValue_List_Nullability_Result(t *testing.T) {
 	t.Run("List contains values", func(t *testing.T) {
-		sch := &schema.Schema{
-			QueryType: "Query",
-			Types: map[string]*schema.Type{
-				"Query": {
-					Name:   "Query",
-					Kind:   schema.TypeKindObject,
-					Fields: schema.NewFieldMap(&schema.Field{Name: "list", Type: schema.ListType(schema.NamedType("String"))}),
-				},
-				"String": {Name: "String", Kind: schema.TypeKindScalar},
-			},
-		}
+		sch := newListSchema(schema.ListType(schema.NamedType("String")))
 		rt := executor.NewMockRuntime(map[string]executor.MockResolver{
 			"Query.list": executor.NewMockValueResolver([]any{"A", "B"}),
 		})
@@ -157,17 +161,7 @@ func TestCompleteValue_List_Nullability_Result(t *testing.T) {
 	})
 
 	t.Run("List contains null", func(t *testing.T) {
-		sch := &schema.Schema{
-			QueryType: "Query",
-			Types: map[string]*schema.Type{
-				"Query": {
-					Name:   "Query",
-					Kind:   schema.TypeKindObject,
-					Fields: schema.NewFieldMap(&schema.Field{Name: "list", Type: schema.ListType(schema.NamedType("String"))}),
-				},
-				"String": {Name: "String", Kind: schema.TypeKindScalar},
-			},
-		}
+		sch := newListSchema(schema.ListType(schema.NamedType("String")))
 		rt := executor.NewMockRuntime(map[string]executor.MockResolver{
 			"Query.list": executor.NewMockValueResolver([]any{"A", nil, "B"}),
 		})
@@ -186,17 +180,7 @@ func TestCompleteValue_List_Nullability_Result(t *testing.T) {
 	})
 
 	t.Run("List is null", func(t *testing.T) {
-		sch := &schema.Schema{
-			QueryType: "Query",
-			Types: map[string]*schema.Type{
-				"Query": {
-					Name:   "Query",
-					Kind:   schema.TypeKindObject,
-					Fields: schema.NewFieldMap(&schema.Field{Name: "list", Type: schema.ListType(schema.NamedType("String"))}),
-				},
-				"String": {Name: "String", Kind: schema.TypeKindScalar},
-			},
-		}
+		sch := newListSchema(schema.ListType(schema.NamedType("String")))
 		rt := executor.NewMockRuntime(map[string]executor.MockResolver{
 			"Query.list": executor.NewMockValueResolver(nil),
 		})
@@ -215,17 +199,7 @@ func TestCompleteValue_List_Nullability_Result(t *testing.T) {
 	})
 
 	t.Run("Item non-null violation", func(t *testing.T) {
-		sch := &schema.Schema{
-			QueryType: "Query",
-			Types: map[string]*schema.Type{
-				"Query": {
-					Name:   "Query",
-					Kind:   schema.TypeKindObject,
-					Fields: schema.NewFieldMap(&schema.Field{Name: "list", Type: schema.ListType(schema.NonNullType(schema.NamedType("String")))}),
-				},
-				"String": {Name: "String", Kind: schema.TypeKindScalar},
-			},
-		}
+		sch := newListSchema(schema.ListType(schema.NonNullType(schema.NamedType("String"))))
 		rt := executor.NewMockRuntime(map[string]executor.MockResolver{
 			"Query.list": executor.NewMockValueResolver([]any{"A", nil, "B"}),
 		})
@@ -248,17 +222,7 @@ func TestCompleteValue_List_Nullability_Result(t *testing.T) {
 // Pattern: Result comparison
 func TestCompleteValue_Leaf_Serialization_Result(t *testing.T) {
 	t.Run("SerializeLeafValue success", func(t *testing.T) {
-		sch := &schema.Schema{
-			QueryType: "Query",
-			Types: map[string]*schema.Type{
-				"Query": {
-					Name:   "Query",
-					Kind:   schema.TypeKindObject,
-					Fields: schema.NewFieldMap(&schema.Field{Name: "a", Type: schema.NamedType("String")}),
-				},
-				"String": {Name: "String", Kind: schema.TypeKindScalar},
-			},
-		}
+		sch := newLeafSchema(schema.NamedType("String"))
 		rt := executor.NewMockRuntime(map[string]executor.MockResolver{
 			"Query.a": executor.NewMockValueResolver("ok"),
 		})
@@ -283,17 +247,7 @@ func TestCompleteValue_Leaf_Serialization_Result(t *testing.T) {
 	})
 
 	t.Run("SerializeLeafValue error", func(t *testing.T) {
-		sch := &schema.Schema{
-			QueryType: "Query",
-			Types: map[string]*schema.Type{
-				"Query": {
-					Name:   "Query",
-					Kind:   schema.TypeKindObject,
-					Fields: schema.NewFieldMap(&schema.Field{Name: "a", Type: schema.NamedType("String")}),
-				},
-				"String": {Name: "String", Kind: schema.TypeKindScalar},
-			},
-		}
+		sch := newLeafSchema(schema.NamedType("String"))
 		rt := executor.NewMockRuntime(map[string]executor.MockResolver{
 			"Query.a": executor.NewMockValueResolver("bad"),
 		})
@@ -317,25 +271,7 @@ func TestCompleteValue_Leaf_Serialization_Result(t *testing.T) {
 
 // Pattern: Result comparison
 func TestCompleteValue_Object_And_MixedSyncAsync_Result(t *testing.T) {
-	sch := &schema.Schema{
-		QueryType: "Query",
-		Types: map[string]*schema.Type{
-			"Query": {
-				Name:   "Query",
-				Kind:   schema.TypeKindObject,
-				Fields: schema.NewFieldMap(&schema.Field{Name: "obj", Type: schema.NamedType("Obj")}),
-			},
-			"Obj": {
-				Name: "Obj",
-				Kind: schema.TypeKindObject,
-				Fields: schema.NewFieldMap(
-					&schema.Field{Name: "a", Type: schema.NamedType("String"), Async: false},
-					&schema.Field{Name: "b", Type: schema.NamedType("String"), Async: true},
-				),
-			},
-			"String": {Name: "String", Kind: schema.TypeKindScalar},
-		},
-	}
+	sch := newObjectMixedSchema()
 
 	rt := executor.NewMockRuntime(map[string]executor.MockResolver{
 		"Query.obj": executor.NewMockValueResolver(map[string]any{}),
@@ -370,24 +306,7 @@ func TestCompleteValue_Object_And_MixedSyncAsync_Result(t *testing.T) {
 // Pattern: Result comparison
 func TestCompleteValue_Abstract_ResolveType_Result(t *testing.T) {
 	t.Run("ResolveType returns concrete subtype", func(t *testing.T) {
-		sch := &schema.Schema{
-			QueryType: "Query",
-			Types: map[string]*schema.Type{
-				"Query": {
-					Name:   "Query",
-					Kind:   schema.TypeKindObject,
-					Fields: schema.NewFieldMap(&schema.Field{Name: "iface", Type: schema.NamedType("Node")}),
-				},
-				"Node": {Name: "Node", Kind: schema.TypeKindInterface, PossibleTypes: []string{"Obj"}},
-				"Obj": {
-					Name:       "Obj",
-					Kind:       schema.TypeKindObject,
-					Interfaces: []string{"Node"},
-					Fields:     schema.NewFieldMap(&schema.Field{Name: "a", Type: schema.NamedType("String")}),
-				},
-				"String": {Name: "String", Kind: schema.TypeKindScalar},
-			},
-		}
+		sch := newInterfaceSchema()
 		rt := executor.NewMockRuntime(map[string]executor.MockResolver{
 			"Query.iface": executor.NewMockValueResolver(map[string]any{"val": "A"}),
 			"Obj.a":       executor.NewMockValueResolver("A"),
@@ -417,24 +336,7 @@ func TestCompleteValue_Abstract_ResolveType_Result(t *testing.T) {
 	})
 
 	t.Run("ResolveType error", func(t *testing.T) {
-		sch := &schema.Schema{
-			QueryType: "Query",
-			Types: map[string]*schema.Type{
-				"Query": {
-					Name:   "Query",
-					Kind:   schema.TypeKindObject,
-					Fields: schema.NewFieldMap(&schema.Field{Name: "iface", Type: schema.NamedType("Node")}),
-				},
-				"Node": {Name: "Node", Kind: schema.TypeKindInterface, PossibleTypes: []string{"Obj"}},
-				"Obj": {
-					Name:       "Obj",
-					Kind:       schema.TypeKindObject,
-					Interfaces: []string{"Node"},
-					Fields:     schema.NewFieldMap(&schema.Field{Name: "a", Type: schema.NamedType("String")}),
-				},
-				"String": {Name: "String", Kind: schema.TypeKindScalar},
-			},
-		}
+		sch := newInterfaceSchema()
 		rt := executor.NewMockRuntime(map[string]executor.MockResolver{
 			"Query.iface": executor.NewMockValueResolver(map[string]any{}),
 		})
@@ -460,24 +362,7 @@ func TestCompleteValue_Abstract_ResolveType_Result(t *testing.T) {
 	})
 
 	t.Run("ResolveType invalid type name", func(t *testing.T) {
-		sch := &schema.Schema{
-			QueryType: "Query",
-			Types: map[string]*schema.Type{
-				"Query": {
-					Name:   "Query",
-					Kind:   schema.TypeKindObject,
-					Fields: schema.NewFieldMap(&schema.Field{Name: "iface", Type: schema.NamedType("Node")}),
-				},
-				"Node": {Name: "Node", Kind: schema.TypeKindInterface, PossibleTypes: []string{"Obj"}},
-				"Obj": {
-					Name:       "Obj",
-					Kind:       schema.TypeKindObject,
-					Interfaces: []string{"Node"},
-					Fields:     schema.NewFieldMap(&schema.Field{Name: "a", Type: schema.NamedType("String")}),
-				},
-				"String": {Name: "String", Kind: schema.TypeKindScalar},
-			},
-		}
+		sch := newInterfaceSchema()
 		rt := executor.NewMockRuntime(map[string]executor.MockResolver{
 			"Query.iface": executor.NewMockValueResolver(map[string]any{}),
 		})

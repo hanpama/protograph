@@ -11,13 +11,10 @@ import (
 // Pattern: Result comparison
 func TestContext_OperationSelection_Result(t *testing.T) {
 	t.Run("Inline operation", func(t *testing.T) {
-		sch := &schema.Schema{
-			QueryType: "Query",
-			Types: map[string]*schema.Type{
-				"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(&schema.Field{Name: "a", Type: schema.NamedType("String")})},
-				"String": {Name: "String", Kind: schema.TypeKindScalar},
-			},
-		}
+		sch := newSchemaWithQueryType(
+			newObjectType("Query", schema.NewField("a", "", schema.NamedType("String"))),
+			newScalarType("String"),
+		)
 		rt := NewMockRuntime(map[string]MockResolver{
 			"Query.a": NewMockValueResolver("A"),
 		})
@@ -32,13 +29,10 @@ func TestContext_OperationSelection_Result(t *testing.T) {
 	})
 
 	t.Run("Single named operation without name", func(t *testing.T) {
-		sch := &schema.Schema{
-			QueryType: "Query",
-			Types: map[string]*schema.Type{
-				"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(&schema.Field{Name: "a", Type: schema.NamedType("String")})},
-				"String": {Name: "String", Kind: schema.TypeKindScalar},
-			},
-		}
+		sch := newSchemaWithQueryType(
+			newObjectType("Query", schema.NewField("a", "", schema.NamedType("String"))),
+			newScalarType("String"),
+		)
 		rt := NewMockRuntime(map[string]MockResolver{"Query.a": NewMockValueResolver("A")})
 		exec := NewExecutor(rt, sch)
 		doc := mustParseQuery(t, "query Foo { a }")
@@ -51,16 +45,14 @@ func TestContext_OperationSelection_Result(t *testing.T) {
 	})
 
 	t.Run("Named operation provided", func(t *testing.T) {
-		sch := &schema.Schema{
-			QueryType: "Query",
-			Types: map[string]*schema.Type{
-				"Query": {Name: "Query", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(
-					&schema.Field{Name: "a", Type: schema.NamedType("String")},
-					&schema.Field{Name: "b", Type: schema.NamedType("String")},
-				)},
-				"String": {Name: "String", Kind: schema.TypeKindScalar},
-			},
-		}
+		sch := newSchemaWithQueryType(
+			newObjectType(
+				"Query",
+				schema.NewField("a", "", schema.NamedType("String")),
+				schema.NewField("b", "", schema.NamedType("String")),
+			),
+			newScalarType("String"),
+		)
 		rt := NewMockRuntime(map[string]MockResolver{
 			"Query.a": NewMockValueResolver("A"),
 			"Query.b": NewMockValueResolver("B"),
@@ -76,7 +68,7 @@ func TestContext_OperationSelection_Result(t *testing.T) {
 	})
 
 	t.Run("Error no operation provided", func(t *testing.T) {
-		sch := &schema.Schema{}
+		sch := schema.NewSchema("")
 		rt := NewMockRuntime(nil)
 		exec := NewExecutor(rt, sch)
 		doc := mustParseQuery(t, "fragment F on Query { a }")
@@ -89,7 +81,7 @@ func TestContext_OperationSelection_Result(t *testing.T) {
 	})
 
 	t.Run("Error no name with multiple operations", func(t *testing.T) {
-		sch := &schema.Schema{}
+		sch := schema.NewSchema("")
 		rt := NewMockRuntime(nil)
 		exec := NewExecutor(rt, sch)
 		doc := mustParseQuery(t, "query Foo { a } query Bar { b }")
@@ -102,7 +94,7 @@ func TestContext_OperationSelection_Result(t *testing.T) {
 	})
 
 	t.Run("Error unknown operation name", func(t *testing.T) {
-		sch := &schema.Schema{}
+		sch := schema.NewSchema("")
 		rt := NewMockRuntime(nil)
 		exec := NewExecutor(rt, sch)
 		doc := mustParseQuery(t, "query Foo { a } query Bar { b }")
@@ -118,13 +110,14 @@ func TestContext_OperationSelection_Result(t *testing.T) {
 // Pattern: Result comparison
 func TestContext_VariableCoercion_Result(t *testing.T) {
 	t.Run("Provided variable", func(t *testing.T) {
-		sch := &schema.Schema{
-			QueryType: "Query",
-			Types: map[string]*schema.Type{
-				"Query": {Name: "Query", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(&schema.Field{Name: "echo", Type: schema.NamedType("Int"), Arguments: schema.NewInputValueMap(&schema.InputValue{Name: "v", Type: schema.NamedType("Int")})})},
-				"Int":   {Name: "Int", Kind: schema.TypeKindScalar},
-			},
-		}
+		sch := newSchemaWithQueryType(
+			newObjectType(
+				"Query",
+				schema.NewField("echo", "", schema.NamedType("Int")).
+					AddArgument(schema.NewInputValue("v", "", schema.NamedType("Int"))),
+			),
+			schema.NewType("Int", schema.TypeKindScalar, ""),
+		)
 		rt := NewMockRuntime(map[string]MockResolver{
 			"Query.echo": func(ctx context.Context, src any, args map[string]any) (any, error) { return args["v"], nil },
 		})
@@ -139,13 +132,14 @@ func TestContext_VariableCoercion_Result(t *testing.T) {
 	})
 
 	t.Run("Use default", func(t *testing.T) {
-		sch := &schema.Schema{
-			QueryType: "Query",
-			Types: map[string]*schema.Type{
-				"Query": {Name: "Query", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(&schema.Field{Name: "echo", Type: schema.NamedType("Int"), Arguments: schema.NewInputValueMap(&schema.InputValue{Name: "v", Type: schema.NamedType("Int")})})},
-				"Int":   {Name: "Int", Kind: schema.TypeKindScalar},
-			},
-		}
+		sch := newSchemaWithQueryType(
+			newObjectType(
+				"Query",
+				schema.NewField("echo", "", schema.NamedType("Int")).
+					AddArgument(schema.NewInputValue("v", "", schema.NamedType("Int"))),
+			),
+			schema.NewType("Int", schema.TypeKindScalar, ""),
+		)
 		rt := NewMockRuntime(map[string]MockResolver{
 			"Query.echo": func(ctx context.Context, src any, args map[string]any) (any, error) { return args["v"], nil },
 		})
@@ -160,7 +154,7 @@ func TestContext_VariableCoercion_Result(t *testing.T) {
 	})
 
 	t.Run("Missing required variable", func(t *testing.T) {
-		sch := &schema.Schema{}
+		sch := schema.NewSchema("")
 		rt := NewMockRuntime(nil)
 		exec := NewExecutor(rt, sch)
 		doc := mustParseQuery(t, "query($v: Int!){ echo(v:$v) }")
@@ -173,7 +167,7 @@ func TestContext_VariableCoercion_Result(t *testing.T) {
 	})
 
 	t.Run("Null for NonNull variable", func(t *testing.T) {
-		sch := &schema.Schema{}
+		sch := schema.NewSchema("")
 		rt := NewMockRuntime(nil)
 		exec := NewExecutor(rt, sch)
 		doc := mustParseQuery(t, "query($v: Int!){ echo(v:$v) }")

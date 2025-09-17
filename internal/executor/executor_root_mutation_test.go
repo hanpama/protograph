@@ -11,13 +11,10 @@ import (
 
 // Pattern: Calls comparison (and result where trivial)
 func TestRoot_Query_IsAsync_Depth0Batch_Calls(t *testing.T) {
-	sch := &schema.Schema{
-		QueryType: "Query",
-		Types: map[string]*schema.Type{
-			"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(&schema.Field{Name: "a", Type: schema.NamedType("String"), Async: true})},
-			"String": {Name: "String", Kind: schema.TypeKindScalar},
-		},
-	}
+	sch := newSchemaWithQueryType(
+		newObjectType("Query", schema.NewField("a", "", schema.NamedType("String")).SetAsync(true)),
+		newScalarType("String"),
+	)
 	rt := NewMockRuntime(map[string]MockResolver{"Query.a": NewMockValueResolver("A")})
 	exec := NewExecutor(rt, sch)
 	doc := mustParseQuery(t, "{ a }")
@@ -37,19 +34,17 @@ func TestRoot_Query_IsAsync_Depth0Batch_Calls(t *testing.T) {
 
 // Pattern: Result comparison
 func TestMutation_Serial_Evaluation_Order_Result(t *testing.T) {
-	sch := &schema.Schema{
-		QueryType:    "Query",
-		MutationType: "Mutation",
-		Types: map[string]*schema.Type{
-			"Query": {Name: "Query", Kind: schema.TypeKindObject},
-			"Mutation": {Name: "Mutation", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(
-				&schema.Field{Name: "m1", Type: schema.NamedType("String")},
-				&schema.Field{Name: "m2", Type: schema.NamedType("String")},
-				&schema.Field{Name: "m3", Type: schema.NamedType("String")},
-			)},
-			"String": {Name: "String", Kind: schema.TypeKindScalar},
-		},
-	}
+	sch := schema.NewSchema("")
+	sch.SetQueryType("Query")
+	sch.SetMutationType("Mutation")
+	sch.AddType(newObjectType("Query"))
+	sch.AddType(newObjectType(
+		"Mutation",
+		schema.NewField("m1", "", schema.NamedType("String")),
+		schema.NewField("m2", "", schema.NamedType("String")),
+		schema.NewField("m3", "", schema.NamedType("String")),
+	))
+	sch.AddType(newScalarType("String"))
 	rt := NewMockRuntime(map[string]MockResolver{
 		"Mutation.m1": NewMockValueResolver("1"),
 		"Mutation.m2": NewMockErrorResolver(fmt.Errorf("boom")),
