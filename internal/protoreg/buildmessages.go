@@ -133,16 +133,13 @@ func (b *builder) addObjectSourceMessageFields(irObj *ir.ObjectDefinition) {
 func (b *builder) addInterfaceSourceMessageFields(irIface *ir.InterfaceDefinition) {
 	mb := b.definitionMessageBuilders[irIface.Name]
 
-	oneOfBuilder := protobuilder.NewOneof(protoreflect.Name("value"))
-	mb.AddOneOf(oneOfBuilder)
+	typenameField := protobuilder.NewField(protoreflect.Name("typename"), protobuilder.FieldTypeString())
+	typenameField.SetNumber(1)
+	mb.AddField(typenameField)
 
-	fieldBuilders := make([]*protobuilder.FieldBuilder, 0, len(irIface.PossibleTypes))
-	for _, typ := range irIface.PossibleTypes {
-		fb := protobuilder.NewField(protoreflect.Name(typ), protobuilder.FieldTypeMessage(b.definitionMessageBuilders[typ]))
-		fieldBuilders = append(fieldBuilders, fb)
-		oneOfBuilder.AddChoice(fb)
-	}
-	allocateFieldNumbers(fieldBuilders)
+	payloadField := protobuilder.NewField(protoreflect.Name("payload"), protobuilder.FieldTypeBytes())
+	payloadField.SetNumber(2)
+	mb.AddField(payloadField)
 }
 
 func (b *builder) addUnionSourceMessageFields(irUnion *ir.UnionDefinition) {

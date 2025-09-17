@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"sort"
+	"strings"
 	"sync"
 	"time"
 
@@ -213,6 +215,111 @@ func (s *server) ResolveQueryUsers(ctx context.Context, req *grpcproto.ResolveQu
 
 	return &grpcproto.ResolveQueryUsersResponse{
 		Data: users,
+	}, nil
+}
+
+func (s *server) ResolveQueryNode(ctx context.Context, req *grpcproto.ResolveQueryNodeRequest) (*grpcproto.ResolveQueryNodeResponse, error) {
+	id := strings.TrimSpace(req.GetId())
+	if id == "" {
+		return &grpcproto.ResolveQueryNodeResponse{}, nil
+	}
+
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	if user, exists := s.users[id]; exists {
+		return nodeResponse("User", user)
+	}
+	if org, exists := s.organizations[id]; exists {
+		return nodeResponse("Organization", org)
+	}
+	if post, exists := s.posts[id]; exists {
+		return nodeResponse("Post", post)
+	}
+	if comment, exists := s.comments[id]; exists {
+		return nodeResponse("Comment", comment)
+	}
+	if profile, exists := s.profiles[id]; exists {
+		return nodeResponse("Profile", profile)
+	}
+
+	return &grpcproto.ResolveQueryNodeResponse{}, nil
+}
+
+func (s *server) ResolveQuerySearch(ctx context.Context, req *grpcproto.ResolveQuerySearchRequest) (*grpcproto.ResolveQuerySearchResponse, error) {
+	term := strings.TrimSpace(req.GetTerm())
+	if term == "" {
+		return &grpcproto.ResolveQuerySearchResponse{}, nil
+	}
+
+	needle := strings.ToLower(term)
+
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	contains := func(values ...string) bool {
+		for _, value := range values {
+			if strings.Contains(strings.ToLower(value), needle) {
+				return true
+			}
+		}
+		return false
+	}
+
+	var results []*grpcproto.SearchResultSource
+
+	userKeys := make([]string, 0, len(s.users))
+	for id := range s.users {
+		userKeys = append(userKeys, id)
+	}
+	sort.Strings(userKeys)
+	for _, id := range userKeys {
+		user := s.users[id]
+		if contains(user.Name, user.Email) {
+			results = append(results, &grpcproto.SearchResultSource{Value: &grpcproto.SearchResultSource_User{User: user}})
+		}
+	}
+
+	orgKeys := make([]string, 0, len(s.organizations))
+	for id := range s.organizations {
+		orgKeys = append(orgKeys, id)
+	}
+	sort.Strings(orgKeys)
+	for _, id := range orgKeys {
+		org := s.organizations[id]
+		if contains(org.Name, org.Description) {
+			results = append(results, &grpcproto.SearchResultSource{Value: &grpcproto.SearchResultSource_Organization{Organization: org}})
+		}
+	}
+
+	postKeys := make([]string, 0, len(s.posts))
+	for id := range s.posts {
+		postKeys = append(postKeys, id)
+	}
+	sort.Strings(postKeys)
+	for _, id := range postKeys {
+		post := s.posts[id]
+		if contains(post.Title, post.Content) {
+			results = append(results, &grpcproto.SearchResultSource{Value: &grpcproto.SearchResultSource_Post{Post: post}})
+		}
+	}
+
+	return &grpcproto.ResolveQuerySearchResponse{
+		Data: results,
+	}, nil
+}
+
+func nodeResponse(typename string, msg proto.Message) (*grpcproto.ResolveQueryNodeResponse, error) {
+	payload, err := proto.Marshal(msg)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "marshal %s payload: %v", typename, err)
+	}
+
+	return &grpcproto.ResolveQueryNodeResponse{
+		Data: &grpcproto.NodeSource{
+			Typename: typename,
+			Payload:  payload,
+		},
 	}, nil
 }
 

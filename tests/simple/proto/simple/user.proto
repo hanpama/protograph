@@ -2,6 +2,22 @@ syntax = "proto3";
 
 package simple;
 
+message NodeSource {
+  string typename = 1;
+
+  bytes payload = 2;
+}
+
+message SearchResultSource {
+  oneof value {
+    PostSource Post = 23707;
+
+    UserSource User = 27303;
+
+    OrganizationSource Organization = 9145;
+  }
+}
+
 message UserSource {
   string id = 23236;
 
@@ -95,6 +111,22 @@ message ResolveQueryUsersResponse {
   repeated UserSource data = 1;
 }
 
+message ResolveQueryNodeRequest {
+  string id = 23236;
+}
+
+message ResolveQueryNodeResponse {
+  NodeSource data = 1;
+}
+
+message ResolveQuerySearchRequest {
+  string term = 27110;
+}
+
+message ResolveQuerySearchResponse {
+  repeated SearchResultSource data = 1;
+}
+
 message ResolveMutationCreateUserRequest {
   CreateUserInputSource input = 23683;
 }
@@ -104,9 +136,9 @@ message ResolveMutationCreateUserResponse {
 }
 
 message ResolveMutationUpdateUserRequest {
-  UpdateUserInputSource input = 23683;
-
   string id = 23236;
+
+  UpdateUserInputSource input = 23683;
 }
 
 message ResolveMutationUpdateUserResponse {
@@ -250,9 +282,14 @@ message LoadProfileByUserIdResponse {
 }
 
 service UserService {
+  // Fetch a user by ID.
   rpc ResolveQueryUser ( ResolveQueryUserRequest ) returns ( ResolveQueryUserResponse );
 
   rpc ResolveQueryUsers ( ResolveQueryUsersRequest ) returns ( ResolveQueryUsersResponse );
+
+  rpc ResolveQueryNode ( ResolveQueryNodeRequest ) returns ( ResolveQueryNodeResponse );
+
+  rpc ResolveQuerySearch ( ResolveQuerySearchRequest ) returns ( ResolveQuerySearchResponse );
 
   rpc ResolveMutationCreateUser ( ResolveMutationCreateUserRequest ) returns ( ResolveMutationCreateUserResponse );
 

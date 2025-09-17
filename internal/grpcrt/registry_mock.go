@@ -8,24 +8,26 @@ import (
 // field/method descriptors per (objectType, field) key and returns
 // them via the grpcrt.Registry interface.
 type MockRegistry struct {
-    sourceFields    map[[2]string]protoreflect.FieldDescriptor
-    singleResolvers map[[2]string]protoreflect.MethodDescriptor
-    batchResolvers  map[[2]string]protoreflect.MethodDescriptor
-    singleLoaders   map[[2]string]protoreflect.MethodDescriptor
-    batchLoaders    map[[2]string]protoreflect.MethodDescriptor
-    requestMap      map[[2]string]map[string]string
+	sourceFields    map[[2]string]protoreflect.FieldDescriptor
+	singleResolvers map[[2]string]protoreflect.MethodDescriptor
+	batchResolvers  map[[2]string]protoreflect.MethodDescriptor
+	singleLoaders   map[[2]string]protoreflect.MethodDescriptor
+	batchLoaders    map[[2]string]protoreflect.MethodDescriptor
+	requestMap      map[[2]string]map[string]string
+	sourceMessages  map[string]protoreflect.MessageDescriptor
 }
 
 // NewMockRegistry creates an empty MockRegistry.
 func NewMockRegistry() *MockRegistry {
-    return &MockRegistry{
-        sourceFields:    map[[2]string]protoreflect.FieldDescriptor{},
-        singleResolvers: map[[2]string]protoreflect.MethodDescriptor{},
-        batchResolvers:  map[[2]string]protoreflect.MethodDescriptor{},
-        singleLoaders:   map[[2]string]protoreflect.MethodDescriptor{},
-        batchLoaders:    map[[2]string]protoreflect.MethodDescriptor{},
-        requestMap:      map[[2]string]map[string]string{},
-    }
+	return &MockRegistry{
+		sourceFields:    map[[2]string]protoreflect.FieldDescriptor{},
+		singleResolvers: map[[2]string]protoreflect.MethodDescriptor{},
+		batchResolvers:  map[[2]string]protoreflect.MethodDescriptor{},
+		singleLoaders:   map[[2]string]protoreflect.MethodDescriptor{},
+		batchLoaders:    map[[2]string]protoreflect.MethodDescriptor{},
+		requestMap:      map[[2]string]map[string]string{},
+		sourceMessages:  map[string]protoreflect.MessageDescriptor{},
+	}
 }
 
 // RegisterSourceField maps (objectType, graphqlField) to a field descriptor.
@@ -54,15 +56,21 @@ func (m *MockRegistry) RegisterSingleLoader(objectType, field string, md protore
 
 // RegisterBatchLoader maps (objectType, field) to a batch loader method.
 func (m *MockRegistry) RegisterBatchLoader(objectType, field string, md protoreflect.MethodDescriptor) *MockRegistry {
-    m.batchLoaders[[2]string{objectType, field}] = md
-    return m
+	m.batchLoaders[[2]string{objectType, field}] = md
+	return m
+}
+
+// RegisterSourceMessage maps a GraphQL object type to its proto message descriptor.
+func (m *MockRegistry) RegisterSourceMessage(objectType string, md protoreflect.MessageDescriptor) *MockRegistry {
+	m.sourceMessages[objectType] = md
+	return m
 }
 
 // RegisterRequestSourceMap maps (objectType, field) to a request field -> parent source field mapping.
 // Example: { "authorId": "id" } to copy parent.id into request.authorId when not provided via args.
 func (m *MockRegistry) RegisterRequestSourceMap(objectType, field string, mp map[string]string) *MockRegistry {
-    m.requestMap[[2]string{objectType, field}] = mp
-    return m
+	m.requestMap[[2]string{objectType, field}] = mp
+	return m
 }
 
 // ---- grpcrt.Registry implementation ----
@@ -84,11 +92,15 @@ func (m *MockRegistry) GetSingleLoaderDescriptor(objectType, field string) proto
 }
 
 func (m *MockRegistry) GetBatchLoaderDescriptor(objectType, field string) protoreflect.MethodDescriptor {
-    return m.batchLoaders[[2]string{objectType, field}]
+	return m.batchLoaders[[2]string{objectType, field}]
 }
 
 func (m *MockRegistry) GetRequestFieldSourceMapping(objectType, field string) map[string]string {
-    return m.requestMap[[2]string{objectType, field}]
+	return m.requestMap[[2]string{objectType, field}]
+}
+
+func (m *MockRegistry) GetSourceMessageDescriptor(objectType string) protoreflect.MessageDescriptor {
+	return m.sourceMessages[objectType]
 }
 
 var _ Registry = (*MockRegistry)(nil)

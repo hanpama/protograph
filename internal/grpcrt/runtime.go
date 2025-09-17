@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/hanpama/protograph/internal/executor"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/dynamicpb"
 )
@@ -440,7 +441,14 @@ func (r *Runtime) handleValue(fd protoreflect.FieldDescriptor, v protoreflect.Va
 		}
 		return int32(v.Enum())
 	case protoreflect.MessageKind:
-		return v.Message()
+		msg := v.Message()
+		if decoded := r.unwrapInterfaceEnvelope(msg); decoded != nil {
+			return decoded
+		}
+		if union := r.unwrapUnionEnvelope(msg); union != nil {
+			return union
+		}
+		return msg
 	default:
 		return nil
 	}
@@ -476,6 +484,63 @@ func (r *Runtime) SerializeLeafValue(ctx context.Context, scalarOrEnumTypeName s
 }
 
 // ----------------- helpers -----------------
+
+func (r *Runtime) unwrapInterfaceEnvelope(msg protoreflect.Message) protoreflect.Message {
+	if r == nil || r.reg == nil || msg == nil {
+		return nil
+	}
+	fields := msg.Descriptor().Fields()
+	typenameField := fields.ByName("typename")
+	payloadField := fields.ByName("payload")
+	if typenameField == nil || payloadField == nil {
+		return nil
+	}
+	if typenameField.Kind() != protoreflect.StringKind || payloadField.Kind() != protoreflect.BytesKind {
+		return nil
+	}
+	if !msg.Has(typenameField) {
+		return nil
+	}
+	if !msg.Has(payloadField) {
+		panic(fmt.Sprintf("grpcrt: interface envelope %s missing payload", msg.Descriptor().FullName()))
+	}
+	typeName := msg.Get(typenameField).String()
+	desc := r.reg.GetSourceMessageDescriptor(typeName)
+	if desc == nil {
+		panic(fmt.Sprintf("grpcrt: missing source message descriptor for %s", typeName))
+	}
+	payload := msg.Get(payloadField).Bytes()
+	out := dynamicpb.NewMessage(desc)
+	if err := proto.Unmarshal(payload, out.Interface()); err != nil {
+		panic(fmt.Sprintf("grpcrt: failed to unmarshal payload for %s: %v", typeName, err))
+	}
+	return out
+}
+
+func (r *Runtime) unwrapUnionEnvelope(msg protoreflect.Message) protoreflect.Message {
+	if msg == nil {
+		return nil
+	}
+	desc := msg.Descriptor()
+	if desc == nil || desc.Oneofs().Len() != 1 {
+		return nil
+	}
+	oneofDesc := desc.Oneofs().Get(0)
+	if oneofDesc == nil || string(oneofDesc.Name()) != "value" {
+		return nil
+	}
+	fd := msg.WhichOneof(oneofDesc)
+	if fd == nil {
+		return nil
+	}
+	if fd.Kind() != protoreflect.MessageKind {
+		panic(fmt.Sprintf("grpcrt: union envelope %s has non-message variant %s", desc.FullName(), fd.FullName()))
+	}
+	if !msg.Has(fd) {
+		return nil
+	}
+	return msg.Get(fd).Message()
+}
 
 func setMessageFieldsByJSON(msg protoreflect.Message, data map[string]any) error {
 	if data == nil {

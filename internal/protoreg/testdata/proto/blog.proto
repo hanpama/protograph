@@ -3,11 +3,9 @@ syntax = "proto3";
 package testdata.proto;
 
 message NodeSource {
-  oneof value {
-    UserSource User = 27303;
+  string typename = 1;
 
-    PostSource Post = 23707;
-  }
+  bytes payload = 2;
 }
 
 message UserSource {

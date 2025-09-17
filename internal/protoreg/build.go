@@ -95,6 +95,7 @@ func Build(p *ir.Project) (*Registry, error) {
 		singleLoaderDescriptors:   map[[2]string]protoreflect.MethodDescriptor{},
 		batchLoaderDescriptors:    map[[2]string]protoreflect.MethodDescriptor{},
 		requestFieldSourceMap:     map[[2]string]map[string]string{},
+		sourceMessageDescriptors:  map[string]protoreflect.MessageDescriptor{},
 	}
 
 	// Build file descriptors and populate registry
@@ -112,6 +113,7 @@ func Build(p *ir.Project) (*Registry, error) {
 			// Check if this is a Source message by looking up the GraphQL type name
 			gqlType := b.protoGQLTypeMap[msg.Name()]
 			if gqlType != "" {
+				reg.sourceMessageDescriptors[gqlType] = msg
 				fields := msg.Fields()
 				for j := 0; j < fields.Len(); j++ {
 					field := fields.Get(j)

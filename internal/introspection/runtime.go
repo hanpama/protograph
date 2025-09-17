@@ -308,6 +308,9 @@ func resolveTypeField(sch *schema.Schema, t *schema.Type, field string, args map
 		return resolveTypeInputFields(t, args), true
 	case "isOneOf":
 		return t.OneOf, true
+	case "ofType":
+		// Wrapper types (LIST/NON_NULL) are represented as TypeRef nodes, so named types never expose ofType.
+		return nil, true
 	}
 	return nil, false
 }
