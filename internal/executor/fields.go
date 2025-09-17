@@ -186,10 +186,8 @@ func getFragmentDefinition(document *language.QueryDocument, name string) *langu
 }
 
 func getFieldDefinition(objectType *schema.Type, fieldName string) *schema.Field {
-	for _, field := range objectType.Fields {
-		if field.Name == fieldName {
-			return field
-		}
+	if objectType == nil {
+		return nil
 	}
-	return nil
+	return objectType.Field(fieldName)
 }

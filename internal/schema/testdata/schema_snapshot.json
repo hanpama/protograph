@@ -7,11 +7,11 @@
       "Name": "Boolean",
       "Kind": "SCALAR",
       "Description": "The Boolean scalar type represents true or false.",
-      "Fields": null,
+      "Fields": {},
       "Interfaces": null,
       "PossibleTypes": null,
       "EnumValues": null,
-      "InputFields": null,
+      "InputFields": {},
       "SpecifiedByURL": null,
       "OneOf": false
     },
@@ -19,12 +19,12 @@
       "Name": "CreateUserInput",
       "Kind": "INPUT_OBJECT",
       "Description": "",
-      "Fields": null,
+      "Fields": {},
       "Interfaces": null,
       "PossibleTypes": null,
       "EnumValues": null,
-      "InputFields": [
-        {
+      "InputFields": {
+        "email": {
           "Name": "email",
           "Description": "",
           "Type": {
@@ -38,9 +38,10 @@
           },
           "DefaultValue": null,
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 1
         },
-        {
+        "name": {
           "Name": "name",
           "Description": "",
           "Type": {
@@ -54,9 +55,10 @@
           },
           "DefaultValue": null,
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 0
         },
-        {
+        "role": {
           "Name": "role",
           "Description": "",
           "Type": {
@@ -66,9 +68,10 @@
           },
           "DefaultValue": "USER",
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 2
         }
-      ],
+      },
       "SpecifiedByURL": null,
       "OneOf": false
     },
@@ -76,11 +79,11 @@
       "Name": "DateTime",
       "Kind": "SCALAR",
       "Description": "",
-      "Fields": null,
+      "Fields": {},
       "Interfaces": null,
       "PossibleTypes": null,
       "EnumValues": null,
-      "InputFields": null,
+      "InputFields": {},
       "SpecifiedByURL": null,
       "OneOf": false
     },
@@ -88,12 +91,12 @@
       "Name": "ExtendedFilter",
       "Kind": "INPUT_OBJECT",
       "Description": "",
-      "Fields": null,
+      "Fields": {},
       "Interfaces": null,
       "PossibleTypes": null,
       "EnumValues": null,
-      "InputFields": [
-        {
+      "InputFields": {
+        "keyword": {
           "Name": "keyword",
           "Description": "",
           "Type": {
@@ -103,9 +106,10 @@
           },
           "DefaultValue": null,
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 2
         },
-        {
+        "priority": {
           "Name": "priority",
           "Description": "",
           "Type": {
@@ -115,9 +119,10 @@
           },
           "DefaultValue": null,
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 1
         },
-        {
+        "status": {
           "Name": "status",
           "Description": "",
           "Type": {
@@ -127,9 +132,10 @@
           },
           "DefaultValue": null,
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 0
         }
-      ],
+      },
       "SpecifiedByURL": null,
       "OneOf": false
     },
@@ -137,7 +143,7 @@
       "Name": "ExtensionStatus",
       "Kind": "ENUM",
       "Description": "",
-      "Fields": null,
+      "Fields": {},
       "Interfaces": null,
       "PossibleTypes": null,
       "EnumValues": [
@@ -160,7 +166,7 @@
           "DeprecationReason": ""
         }
       ],
-      "InputFields": null,
+      "InputFields": {},
       "SpecifiedByURL": null,
       "OneOf": false
     },
@@ -168,11 +174,11 @@
       "Name": "Float",
       "Kind": "SCALAR",
       "Description": "The Float scalar type represents signed double-precision fractional values.",
-      "Fields": null,
+      "Fields": {},
       "Interfaces": null,
       "PossibleTypes": null,
       "EnumValues": null,
-      "InputFields": null,
+      "InputFields": {},
       "SpecifiedByURL": null,
       "OneOf": false
     },
@@ -180,11 +186,11 @@
       "Name": "ID",
       "Kind": "SCALAR",
       "Description": "The ID scalar type represents a unique identifier, often used to refetch an object or as a key for caching.",
-      "Fields": null,
+      "Fields": {},
       "Interfaces": null,
       "PossibleTypes": null,
       "EnumValues": null,
-      "InputFields": null,
+      "InputFields": {},
       "SpecifiedByURL": null,
       "OneOf": false
     },
@@ -192,11 +198,11 @@
       "Name": "Int",
       "Kind": "SCALAR",
       "Description": "The Int scalar type represents non-fractional signed whole numeric values.",
-      "Fields": null,
+      "Fields": {},
       "Interfaces": null,
       "PossibleTypes": null,
       "EnumValues": null,
-      "InputFields": null,
+      "InputFields": {},
       "SpecifiedByURL": null,
       "OneOf": false
     },
@@ -204,11 +210,11 @@
       "Name": "JSON",
       "Kind": "SCALAR",
       "Description": "",
-      "Fields": null,
+      "Fields": {},
       "Interfaces": null,
       "PossibleTypes": null,
       "EnumValues": null,
-      "InputFields": null,
+      "InputFields": {},
       "SpecifiedByURL": null,
       "OneOf": false
     },
@@ -216,8 +222,8 @@
       "Name": "Mutation",
       "Kind": "OBJECT",
       "Description": "",
-      "Fields": [
-        {
+      "Fields": {
+        "createUser": {
           "Name": "createUser",
           "Description": "",
           "Type": {
@@ -229,8 +235,8 @@
             },
             "Named": ""
           },
-          "Arguments": [
-            {
+          "Arguments": {
+            "input": {
               "Name": "input",
               "Description": "",
               "Type": {
@@ -244,14 +250,16 @@
               },
               "DefaultValue": null,
               "IsDeprecated": false,
-              "DeprecationReason": ""
+              "DeprecationReason": "",
+              "Index": 0
             }
-          ],
+          },
           "Async": true,
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 0
         },
-        {
+        "updateUserBio": {
           "Name": "updateUserBio",
           "Description": "",
           "Type": {
@@ -259,8 +267,8 @@
             "OfType": null,
             "Named": "Boolean"
           },
-          "Arguments": [
-            {
+          "Arguments": {
+            "bio": {
               "Name": "bio",
               "Description": "",
               "Type": {
@@ -274,9 +282,10 @@
               },
               "DefaultValue": null,
               "IsDeprecated": false,
-              "DeprecationReason": ""
+              "DeprecationReason": "",
+              "Index": 1
             },
-            {
+            "userId": {
               "Name": "userId",
               "Description": "",
               "Type": {
@@ -290,18 +299,20 @@
               },
               "DefaultValue": null,
               "IsDeprecated": false,
-              "DeprecationReason": ""
+              "DeprecationReason": "",
+              "Index": 0
             }
-          ],
+          },
           "Async": true,
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 1
         }
-      ],
+      },
       "Interfaces": null,
       "PossibleTypes": null,
       "EnumValues": null,
-      "InputFields": null,
+      "InputFields": {},
       "SpecifiedByURL": null,
       "OneOf": false
     },
@@ -309,8 +320,8 @@
       "Name": "Node",
       "Kind": "INTERFACE",
       "Description": "",
-      "Fields": [
-        {
+      "Fields": {
+        "id": {
           "Name": "id",
           "Description": "",
           "Type": {
@@ -322,16 +333,17 @@
             },
             "Named": ""
           },
-          "Arguments": null,
+          "Arguments": {},
           "Async": true,
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 0
         }
-      ],
+      },
       "Interfaces": null,
       "PossibleTypes": null,
       "EnumValues": null,
-      "InputFields": null,
+      "InputFields": {},
       "SpecifiedByURL": null,
       "OneOf": false
     },
@@ -339,7 +351,7 @@
       "Name": "Priority",
       "Kind": "ENUM",
       "Description": "",
-      "Fields": null,
+      "Fields": {},
       "Interfaces": null,
       "PossibleTypes": null,
       "EnumValues": [
@@ -368,7 +380,7 @@
           "DeprecationReason": ""
         }
       ],
-      "InputFields": null,
+      "InputFields": {},
       "SpecifiedByURL": null,
       "OneOf": false
     },
@@ -376,8 +388,8 @@
       "Name": "Query",
       "Kind": "OBJECT",
       "Description": "",
-      "Fields": [
-        {
+      "Fields": {
+        "getExtendedInfo": {
           "Name": "getExtendedInfo",
           "Description": "",
           "Type": {
@@ -385,12 +397,13 @@
             "OfType": null,
             "Named": "String"
           },
-          "Arguments": null,
+          "Arguments": {},
           "Async": true,
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 3
         },
-        {
+        "getUser": {
           "Name": "getUser",
           "Description": "",
           "Type": {
@@ -398,8 +411,8 @@
             "OfType": null,
             "Named": "User"
           },
-          "Arguments": [
-            {
+          "Arguments": {
+            "id": {
               "Name": "id",
               "Description": "",
               "Type": {
@@ -413,14 +426,16 @@
               },
               "DefaultValue": null,
               "IsDeprecated": false,
-              "DeprecationReason": ""
+              "DeprecationReason": "",
+              "Index": 0
             }
-          ],
+          },
           "Async": true,
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 0
         },
-        {
+        "listActiveUsers": {
           "Name": "listActiveUsers",
           "Description": "",
           "Type": {
@@ -440,12 +455,13 @@
             },
             "Named": ""
           },
-          "Arguments": null,
+          "Arguments": {},
           "Async": true,
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 4
         },
-        {
+        "listUsers": {
           "Name": "listUsers",
           "Description": "",
           "Type": {
@@ -465,12 +481,13 @@
             },
             "Named": ""
           },
-          "Arguments": null,
+          "Arguments": {},
           "Async": true,
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 1
         },
-        {
+        "node": {
           "Name": "node",
           "Description": "",
           "Type": {
@@ -478,8 +495,8 @@
             "OfType": null,
             "Named": "Node"
           },
-          "Arguments": [
-            {
+          "Arguments": {
+            "id": {
               "Name": "id",
               "Description": "",
               "Type": {
@@ -493,18 +510,20 @@
               },
               "DefaultValue": null,
               "IsDeprecated": false,
-              "DeprecationReason": ""
+              "DeprecationReason": "",
+              "Index": 0
             }
-          ],
+          },
           "Async": true,
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 2
         }
-      ],
+      },
       "Interfaces": null,
       "PossibleTypes": null,
       "EnumValues": null,
-      "InputFields": null,
+      "InputFields": {},
       "SpecifiedByURL": null,
       "OneOf": false
     },
@@ -512,13 +531,13 @@
       "Name": "SearchResult",
       "Kind": "UNION",
       "Description": "",
-      "Fields": null,
+      "Fields": {},
       "Interfaces": null,
       "PossibleTypes": [
         "User"
       ],
       "EnumValues": null,
-      "InputFields": null,
+      "InputFields": {},
       "SpecifiedByURL": null,
       "OneOf": false
     },
@@ -526,11 +545,11 @@
       "Name": "String",
       "Kind": "SCALAR",
       "Description": "The String scalar type represents textual data, represented as UTF-8 character sequences.",
-      "Fields": null,
+      "Fields": {},
       "Interfaces": null,
       "PossibleTypes": null,
       "EnumValues": null,
-      "InputFields": null,
+      "InputFields": {},
       "SpecifiedByURL": null,
       "OneOf": false
     },
@@ -538,8 +557,8 @@
       "Name": "Timestamped",
       "Kind": "INTERFACE",
       "Description": "",
-      "Fields": [
-        {
+      "Fields": {
+        "createdAt": {
           "Name": "createdAt",
           "Description": "",
           "Type": {
@@ -551,12 +570,13 @@
             },
             "Named": ""
           },
-          "Arguments": null,
+          "Arguments": {},
           "Async": true,
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 0
         },
-        {
+        "deletedAt": {
           "Name": "deletedAt",
           "Description": "",
           "Type": {
@@ -564,12 +584,13 @@
             "OfType": null,
             "Named": "DateTime"
           },
-          "Arguments": null,
+          "Arguments": {},
           "Async": true,
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 2
         },
-        {
+        "updatedAt": {
           "Name": "updatedAt",
           "Description": "",
           "Type": {
@@ -577,16 +598,17 @@
             "OfType": null,
             "Named": "DateTime"
           },
-          "Arguments": null,
+          "Arguments": {},
           "Async": true,
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 1
         }
-      ],
+      },
       "Interfaces": null,
       "PossibleTypes": null,
       "EnumValues": null,
-      "InputFields": null,
+      "InputFields": {},
       "SpecifiedByURL": null,
       "OneOf": false
     },
@@ -594,11 +616,11 @@
       "Name": "URL",
       "Kind": "SCALAR",
       "Description": "",
-      "Fields": null,
+      "Fields": {},
       "Interfaces": null,
       "PossibleTypes": null,
       "EnumValues": null,
-      "InputFields": null,
+      "InputFields": {},
       "SpecifiedByURL": null,
       "OneOf": false
     },
@@ -606,8 +628,8 @@
       "Name": "User",
       "Kind": "OBJECT",
       "Description": "",
-      "Fields": [
-        {
+      "Fields": {
+        "bio": {
           "Name": "bio",
           "Description": "",
           "Type": {
@@ -615,12 +637,13 @@
             "OfType": null,
             "Named": "JSON"
           },
-          "Arguments": null,
+          "Arguments": {},
           "Async": true,
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 7
         },
-        {
+        "createdAt": {
           "Name": "createdAt",
           "Description": "",
           "Type": {
@@ -632,12 +655,13 @@
             },
             "Named": ""
           },
-          "Arguments": null,
+          "Arguments": {},
           "Async": false,
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 5
         },
-        {
+        "deletedAt": {
           "Name": "deletedAt",
           "Description": "",
           "Type": {
@@ -645,12 +669,13 @@
             "OfType": null,
             "Named": "DateTime"
           },
-          "Arguments": null,
+          "Arguments": {},
           "Async": true,
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 9
         },
-        {
+        "email": {
           "Name": "email",
           "Description": "",
           "Type": {
@@ -662,12 +687,13 @@
             },
             "Named": ""
           },
-          "Arguments": null,
+          "Arguments": {},
           "Async": false,
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 2
         },
-        {
+        "id": {
           "Name": "id",
           "Description": "",
           "Type": {
@@ -679,12 +705,13 @@
             },
             "Named": ""
           },
-          "Arguments": null,
+          "Arguments": {},
           "Async": false,
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 0
         },
-        {
+        "isExtended": {
           "Name": "isExtended",
           "Description": "",
           "Type": {
@@ -692,12 +719,13 @@
             "OfType": null,
             "Named": "Boolean"
           },
-          "Arguments": null,
+          "Arguments": {},
           "Async": true,
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 10
         },
-        {
+        "lastLoginAt": {
           "Name": "lastLoginAt",
           "Description": "",
           "Type": {
@@ -705,12 +733,13 @@
             "OfType": null,
             "Named": "DateTime"
           },
-          "Arguments": null,
+          "Arguments": {},
           "Async": true,
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 8
         },
-        {
+        "name": {
           "Name": "name",
           "Description": "",
           "Type": {
@@ -722,12 +751,13 @@
             },
             "Named": ""
           },
-          "Arguments": null,
+          "Arguments": {},
           "Async": false,
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 1
         },
-        {
+        "role": {
           "Name": "role",
           "Description": "",
           "Type": {
@@ -739,12 +769,13 @@
             },
             "Named": ""
           },
-          "Arguments": null,
+          "Arguments": {},
           "Async": false,
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 3
         },
-        {
+        "status": {
           "Name": "status",
           "Description": "",
           "Type": {
@@ -756,12 +787,13 @@
             },
             "Named": ""
           },
-          "Arguments": null,
+          "Arguments": {},
           "Async": false,
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 4
         },
-        {
+        "updatedAt": {
           "Name": "updatedAt",
           "Description": "",
           "Type": {
@@ -769,19 +801,20 @@
             "OfType": null,
             "Named": "DateTime"
           },
-          "Arguments": null,
+          "Arguments": {},
           "Async": false,
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 6
         }
-      ],
+      },
       "Interfaces": [
         "Node",
         "Timestamped"
       ],
       "PossibleTypes": null,
       "EnumValues": null,
-      "InputFields": null,
+      "InputFields": {},
       "SpecifiedByURL": null,
       "OneOf": false
     },
@@ -789,7 +822,7 @@
       "Name": "UserRole",
       "Kind": "ENUM",
       "Description": "",
-      "Fields": null,
+      "Fields": {},
       "Interfaces": null,
       "PossibleTypes": null,
       "EnumValues": [
@@ -830,7 +863,7 @@
           "DeprecationReason": ""
         }
       ],
-      "InputFields": null,
+      "InputFields": {},
       "SpecifiedByURL": null,
       "OneOf": false
     },
@@ -838,7 +871,7 @@
       "Name": "UserStatus",
       "Kind": "ENUM",
       "Description": "",
-      "Fields": null,
+      "Fields": {},
       "Interfaces": null,
       "PossibleTypes": null,
       "EnumValues": [
@@ -861,7 +894,7 @@
           "DeprecationReason": ""
         }
       ],
-      "InputFields": null,
+      "InputFields": {},
       "SpecifiedByURL": null,
       "OneOf": false
     }
@@ -890,7 +923,8 @@
           },
           "DefaultValue": null,
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 0
         }
       ],
       "IsRepeatable": false
@@ -918,7 +952,8 @@
           },
           "DefaultValue": null,
           "IsDeprecated": false,
-          "DeprecationReason": ""
+          "DeprecationReason": "",
+          "Index": 0
         }
       ],
       "IsRepeatable": false

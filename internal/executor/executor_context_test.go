@@ -14,7 +14,7 @@ func TestContext_OperationSelection_Result(t *testing.T) {
 		sch := &schema.Schema{
 			QueryType: "Query",
 			Types: map[string]*schema.Type{
-				"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "a", Type: schema.NamedType("String")}}},
+				"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(&schema.Field{Name: "a", Type: schema.NamedType("String")})},
 				"String": {Name: "String", Kind: schema.TypeKindScalar},
 			},
 		}
@@ -35,7 +35,7 @@ func TestContext_OperationSelection_Result(t *testing.T) {
 		sch := &schema.Schema{
 			QueryType: "Query",
 			Types: map[string]*schema.Type{
-				"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "a", Type: schema.NamedType("String")}}},
+				"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(&schema.Field{Name: "a", Type: schema.NamedType("String")})},
 				"String": {Name: "String", Kind: schema.TypeKindScalar},
 			},
 		}
@@ -54,7 +54,10 @@ func TestContext_OperationSelection_Result(t *testing.T) {
 		sch := &schema.Schema{
 			QueryType: "Query",
 			Types: map[string]*schema.Type{
-				"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "a", Type: schema.NamedType("String")}, {Name: "b", Type: schema.NamedType("String")}}},
+				"Query": {Name: "Query", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(
+					&schema.Field{Name: "a", Type: schema.NamedType("String")},
+					&schema.Field{Name: "b", Type: schema.NamedType("String")},
+				)},
 				"String": {Name: "String", Kind: schema.TypeKindScalar},
 			},
 		}
@@ -118,7 +121,7 @@ func TestContext_VariableCoercion_Result(t *testing.T) {
 		sch := &schema.Schema{
 			QueryType: "Query",
 			Types: map[string]*schema.Type{
-				"Query": {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "echo", Type: schema.NamedType("Int"), Arguments: []*schema.InputValue{{Name: "v", Type: schema.NamedType("Int")}}}}},
+				"Query": {Name: "Query", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(&schema.Field{Name: "echo", Type: schema.NamedType("Int"), Arguments: schema.NewInputValueMap(&schema.InputValue{Name: "v", Type: schema.NamedType("Int")})})},
 				"Int":   {Name: "Int", Kind: schema.TypeKindScalar},
 			},
 		}
@@ -139,7 +142,7 @@ func TestContext_VariableCoercion_Result(t *testing.T) {
 		sch := &schema.Schema{
 			QueryType: "Query",
 			Types: map[string]*schema.Type{
-				"Query": {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "echo", Type: schema.NamedType("Int"), Arguments: []*schema.InputValue{{Name: "v", Type: schema.NamedType("Int")}}}}},
+				"Query": {Name: "Query", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(&schema.Field{Name: "echo", Type: schema.NamedType("Int"), Arguments: schema.NewInputValueMap(&schema.InputValue{Name: "v", Type: schema.NamedType("Int")})})},
 				"Int":   {Name: "Int", Kind: schema.TypeKindScalar},
 			},
 		}

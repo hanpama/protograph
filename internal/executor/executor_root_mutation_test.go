@@ -14,7 +14,7 @@ func TestRoot_Query_IsAsync_Depth0Batch_Calls(t *testing.T) {
 	sch := &schema.Schema{
 		QueryType: "Query",
 		Types: map[string]*schema.Type{
-			"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "a", Type: schema.NamedType("String"), Async: true}}},
+			"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(&schema.Field{Name: "a", Type: schema.NamedType("String"), Async: true})},
 			"String": {Name: "String", Kind: schema.TypeKindScalar},
 		},
 	}
@@ -41,9 +41,13 @@ func TestMutation_Serial_Evaluation_Order_Result(t *testing.T) {
 		QueryType:    "Query",
 		MutationType: "Mutation",
 		Types: map[string]*schema.Type{
-			"Query":    {Name: "Query", Kind: schema.TypeKindObject},
-			"Mutation": {Name: "Mutation", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "m1", Type: schema.NamedType("String")}, {Name: "m2", Type: schema.NamedType("String")}, {Name: "m3", Type: schema.NamedType("String")}}},
-			"String":   {Name: "String", Kind: schema.TypeKindScalar},
+			"Query": {Name: "Query", Kind: schema.TypeKindObject},
+			"Mutation": {Name: "Mutation", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(
+				&schema.Field{Name: "m1", Type: schema.NamedType("String")},
+				&schema.Field{Name: "m2", Type: schema.NamedType("String")},
+				&schema.Field{Name: "m3", Type: schema.NamedType("String")},
+			)},
+			"String": {Name: "String", Kind: schema.TypeKindScalar},
 		},
 	}
 	rt := NewMockRuntime(map[string]MockResolver{

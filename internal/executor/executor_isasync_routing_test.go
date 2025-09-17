@@ -18,10 +18,10 @@ func TestRouting_IsAsync_SyncVsAsync_Calls(t *testing.T) {
 			"Query": {
 				Name: "Query",
 				Kind: schema.TypeKindObject,
-				Fields: []*schema.Field{
-					{Name: "a", Type: schema.NamedType("String"), Async: false},
-					{Name: "b", Type: schema.NamedType("String"), Async: true},
-				},
+				Fields: schema.NewFieldMap(
+					&schema.Field{Name: "a", Type: schema.NamedType("String"), Async: false},
+					&schema.Field{Name: "b", Type: schema.NamedType("String"), Async: true},
+				),
 			},
 			"String": {Name: "String", Kind: schema.TypeKindScalar},
 		},
@@ -74,10 +74,10 @@ func TestRouting_DepthWiseBatch_Invariants_Calls(t *testing.T) {
 			"Query": {
 				Name: "Query",
 				Kind: schema.TypeKindObject,
-				Fields: []*schema.Field{
-					{Name: "a", Type: schema.NamedType("String"), Async: true},
-					{Name: "b", Type: schema.NamedType("String"), Async: true},
-				},
+				Fields: schema.NewFieldMap(
+					&schema.Field{Name: "a", Type: schema.NamedType("String"), Async: true},
+					&schema.Field{Name: "b", Type: schema.NamedType("String"), Async: true},
+				),
 			},
 			"String": {Name: "String", Kind: schema.TypeKindScalar},
 		},
@@ -117,8 +117,8 @@ func TestRouting_DepthWiseBatch_Invariants_Calls(t *testing.T) {
 	sch2 := &schema.Schema{
 		QueryType: "Query",
 		Types: map[string]*schema.Type{
-			"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "root", Type: schema.NamedType("Node"), Async: true}}},
-			"Node":   {Name: "Node", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "x", Type: schema.NamedType("String"), Async: true}}},
+			"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(&schema.Field{Name: "root", Type: schema.NamedType("Node"), Async: true})},
+			"Node":   {Name: "Node", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(&schema.Field{Name: "x", Type: schema.NamedType("String"), Async: true})},
 			"String": {Name: "String", Kind: schema.TypeKindScalar},
 		},
 	}
@@ -156,8 +156,11 @@ func TestRouting_DepthWiseBatch_Invariants_Calls(t *testing.T) {
 	sch3 := &schema.Schema{
 		QueryType: "Query",
 		Types: map[string]*schema.Type{
-			"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "root", Type: schema.NamedType("Node"), Async: true}}},
-			"Node":   {Name: "Node", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "child", Type: schema.NamedType("Node"), Async: true}, {Name: "x", Type: schema.NamedType("String"), Async: true}}},
+			"Query": {Name: "Query", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(&schema.Field{Name: "root", Type: schema.NamedType("Node"), Async: true})},
+			"Node": {Name: "Node", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(
+				&schema.Field{Name: "child", Type: schema.NamedType("Node"), Async: true},
+				&schema.Field{Name: "x", Type: schema.NamedType("String"), Async: true},
+			)},
 			"String": {Name: "String", Kind: schema.TypeKindScalar},
 		},
 	}

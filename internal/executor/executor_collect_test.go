@@ -14,7 +14,13 @@ func TestCollectFields_And_Directives_Result(t *testing.T) {
 		sch := &schema.Schema{
 			QueryType: "Query",
 			Types: map[string]*schema.Type{
-				"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "a", Type: schema.NamedType("String")}}},
+				"Query": {
+					Name: "Query",
+					Kind: schema.TypeKindObject,
+					Fields: map[string]*schema.Field{
+						"a": {Name: "a", Type: schema.NamedType("String"), Index: 0},
+					},
+				},
 				"String": {Name: "String", Kind: schema.TypeKindScalar},
 			},
 		}
@@ -45,11 +51,15 @@ func TestCollectFields_And_Directives_Result(t *testing.T) {
 		sch := &schema.Schema{
 			QueryType: "Query",
 			Types: map[string]*schema.Type{
-				"Query": {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{
-					{Name: "a", Type: schema.NamedType("String")},
-					{Name: "b", Type: schema.NamedType("String")},
-					{Name: "c", Type: schema.NamedType("String")},
-				}},
+				"Query": {
+					Name: "Query",
+					Kind: schema.TypeKindObject,
+					Fields: map[string]*schema.Field{
+						"a": {Name: "a", Type: schema.NamedType("String"), Index: 0},
+						"b": {Name: "b", Type: schema.NamedType("String"), Index: 1},
+						"c": {Name: "c", Type: schema.NamedType("String"), Index: 2},
+					},
+				},
 				"String": {Name: "String", Kind: schema.TypeKindScalar},
 			},
 		}
@@ -68,11 +78,15 @@ func TestCollectFields_And_Directives_Result(t *testing.T) {
 		sch := &schema.Schema{
 			QueryType: "Query",
 			Types: map[string]*schema.Type{
-				"Query": {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{
-					{Name: "a", Type: schema.NamedType("String")},
-					{Name: "b", Type: schema.NamedType("String")},
-					{Name: "c", Type: schema.NamedType("String")},
-				}},
+				"Query": {
+					Name: "Query",
+					Kind: schema.TypeKindObject,
+					Fields: map[string]*schema.Field{
+						"a": {Name: "a", Type: schema.NamedType("String"), Index: 0},
+						"b": {Name: "b", Type: schema.NamedType("String"), Index: 1},
+						"c": {Name: "c", Type: schema.NamedType("String"), Index: 2},
+					},
+				},
 				"String": {Name: "String", Kind: schema.TypeKindScalar},
 			},
 		}
@@ -102,11 +116,15 @@ func TestCollectFields_And_Directives_Result(t *testing.T) {
 		sch := &schema.Schema{
 			QueryType: "Query",
 			Types: map[string]*schema.Type{
-				"Query": {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{
-					{Name: "a", Type: schema.NamedType("String")},
-					{Name: "b", Type: schema.NamedType("String")},
-					{Name: "c", Type: schema.NamedType("String")},
-				}},
+				"Query": {
+					Name: "Query",
+					Kind: schema.TypeKindObject,
+					Fields: map[string]*schema.Field{
+						"a": {Name: "a", Type: schema.NamedType("String"), Index: 0},
+						"b": {Name: "b", Type: schema.NamedType("String"), Index: 1},
+						"c": {Name: "c", Type: schema.NamedType("String"), Index: 2},
+					},
+				},
 				"String": {Name: "String", Kind: schema.TypeKindScalar},
 			},
 		}
@@ -133,11 +151,15 @@ func TestCollectFields_And_Directives_Result(t *testing.T) {
 		sch := &schema.Schema{
 			QueryType: "Query",
 			Types: map[string]*schema.Type{
-				"Query": {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{
-					{Name: "a", Type: schema.NamedType("String")},
-					{Name: "b", Type: schema.NamedType("String")},
-					{Name: "c", Type: schema.NamedType("String")},
-				}},
+				"Query": {
+					Name: "Query",
+					Kind: schema.TypeKindObject,
+					Fields: schema.NewFieldMap(
+						&schema.Field{Name: "a", Type: schema.NamedType("String")},
+						&schema.Field{Name: "b", Type: schema.NamedType("String")},
+						&schema.Field{Name: "c", Type: schema.NamedType("String")},
+					),
+				},
 				"String": {Name: "String", Kind: schema.TypeKindScalar},
 			},
 		}

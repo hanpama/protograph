@@ -4,17 +4,17 @@ The Boolean scalar type represents true or false.
 scalar Boolean
 
 input CreateUserInput {
-  email: String!
   name: String!
+  email: String!
   role: UserRole = "USER"
 }
 
 scalar DateTime
 
 input ExtendedFilter {
-  keyword: String
-  priority: Priority
   status: ExtensionStatus
+  priority: Priority
+  keyword: String
 }
 
 enum ExtensionStatus {
@@ -42,7 +42,7 @@ scalar JSON
 
 type Mutation {
   createUser(input: CreateUserInput!): User!
-  updateUserBio(bio: String!, userId: ID!): Boolean
+  updateUserBio(userId: ID!, bio: String!): Boolean
 }
 
 interface Node {
@@ -57,11 +57,11 @@ enum Priority {
 }
 
 type Query {
-  getExtendedInfo: String
   getUser(id: ID!): User
-  listActiveUsers: [User!]!
   listUsers: [User!]!
   node(id: ID!): Node
+  getExtendedInfo: String
+  listActiveUsers: [User!]!
 }
 
 union SearchResult = User
@@ -73,24 +73,24 @@ scalar String
 
 interface Timestamped {
   createdAt: DateTime!
-  deletedAt: DateTime
   updatedAt: DateTime
+  deletedAt: DateTime
 }
 
 scalar URL
 
 type User implements Node & Timestamped {
-  bio: JSON
-  createdAt: DateTime!
-  deletedAt: DateTime
-  email: String!
   id: ID!
-  isExtended: Boolean
-  lastLoginAt: DateTime
   name: String!
+  email: String!
   role: UserRole!
   status: UserStatus!
+  createdAt: DateTime!
   updatedAt: DateTime
+  bio: JSON
+  lastLoginAt: DateTime
+  deletedAt: DateTime
+  isExtended: Boolean
 }
 
 enum UserRole {

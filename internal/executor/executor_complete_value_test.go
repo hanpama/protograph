@@ -19,19 +19,17 @@ func TestCompleteValue_NonNull_Propagation_Result(t *testing.T) {
 			QueryType: "Query",
 			Types: map[string]*schema.Type{
 				"Query": {
-					Name: "Query",
-					Kind: schema.TypeKindObject,
-					Fields: []*schema.Field{
-						{Name: "obj", Type: schema.NonNullType(schema.NamedType("Obj"))},
-					},
+					Name:   "Query",
+					Kind:   schema.TypeKindObject,
+					Fields: schema.NewFieldMap(&schema.Field{Name: "obj", Type: schema.NonNullType(schema.NamedType("Obj"))}),
 				},
 				"Obj": {
 					Name: "Obj",
 					Kind: schema.TypeKindObject,
-					Fields: []*schema.Field{
-						{Name: "a", Type: schema.NonNullType(schema.NamedType("String")), Async: false},
-						{Name: "b", Type: schema.NonNullType(schema.NamedType("String")), Async: true},
-					},
+					Fields: schema.NewFieldMap(
+						&schema.Field{Name: "a", Type: schema.NonNullType(schema.NamedType("String")), Async: false},
+						&schema.Field{Name: "b", Type: schema.NonNullType(schema.NamedType("String")), Async: true},
+					),
 				},
 				"String": {Name: "String", Kind: schema.TypeKindScalar},
 			},
@@ -78,19 +76,17 @@ func TestCompleteValue_NonNull_Propagation_Result(t *testing.T) {
 			QueryType: "Query",
 			Types: map[string]*schema.Type{
 				"Query": {
-					Name: "Query",
-					Kind: schema.TypeKindObject,
-					Fields: []*schema.Field{
-						{Name: "obj", Type: schema.NonNullType(schema.NamedType("Obj"))},
-					},
+					Name:   "Query",
+					Kind:   schema.TypeKindObject,
+					Fields: schema.NewFieldMap(&schema.Field{Name: "obj", Type: schema.NonNullType(schema.NamedType("Obj"))}),
 				},
 				"Obj": {
 					Name: "Obj",
 					Kind: schema.TypeKindObject,
-					Fields: []*schema.Field{
-						{Name: "a", Type: schema.NonNullType(schema.NamedType("String")), Async: false},
-						{Name: "b", Type: schema.NonNullType(schema.NamedType("String")), Async: true},
-					},
+					Fields: schema.NewFieldMap(
+						&schema.Field{Name: "a", Type: schema.NonNullType(schema.NamedType("String")), Async: false},
+						&schema.Field{Name: "b", Type: schema.NonNullType(schema.NamedType("String")), Async: true},
+					),
 				},
 				"String": {Name: "String", Kind: schema.TypeKindScalar},
 			},
@@ -138,7 +134,7 @@ func TestCompleteValue_List_Nullability_Result(t *testing.T) {
 				"Query": {
 					Name:   "Query",
 					Kind:   schema.TypeKindObject,
-					Fields: []*schema.Field{{Name: "list", Type: schema.ListType(schema.NamedType("String"))}},
+					Fields: schema.NewFieldMap(&schema.Field{Name: "list", Type: schema.ListType(schema.NamedType("String"))}),
 				},
 				"String": {Name: "String", Kind: schema.TypeKindScalar},
 			},
@@ -167,7 +163,7 @@ func TestCompleteValue_List_Nullability_Result(t *testing.T) {
 				"Query": {
 					Name:   "Query",
 					Kind:   schema.TypeKindObject,
-					Fields: []*schema.Field{{Name: "list", Type: schema.ListType(schema.NamedType("String"))}},
+					Fields: schema.NewFieldMap(&schema.Field{Name: "list", Type: schema.ListType(schema.NamedType("String"))}),
 				},
 				"String": {Name: "String", Kind: schema.TypeKindScalar},
 			},
@@ -196,7 +192,7 @@ func TestCompleteValue_List_Nullability_Result(t *testing.T) {
 				"Query": {
 					Name:   "Query",
 					Kind:   schema.TypeKindObject,
-					Fields: []*schema.Field{{Name: "list", Type: schema.ListType(schema.NamedType("String"))}},
+					Fields: schema.NewFieldMap(&schema.Field{Name: "list", Type: schema.ListType(schema.NamedType("String"))}),
 				},
 				"String": {Name: "String", Kind: schema.TypeKindScalar},
 			},
@@ -225,7 +221,7 @@ func TestCompleteValue_List_Nullability_Result(t *testing.T) {
 				"Query": {
 					Name:   "Query",
 					Kind:   schema.TypeKindObject,
-					Fields: []*schema.Field{{Name: "list", Type: schema.ListType(schema.NonNullType(schema.NamedType("String")))}},
+					Fields: schema.NewFieldMap(&schema.Field{Name: "list", Type: schema.ListType(schema.NonNullType(schema.NamedType("String")))}),
 				},
 				"String": {Name: "String", Kind: schema.TypeKindScalar},
 			},
@@ -256,11 +252,9 @@ func TestCompleteValue_Leaf_Serialization_Result(t *testing.T) {
 			QueryType: "Query",
 			Types: map[string]*schema.Type{
 				"Query": {
-					Name: "Query",
-					Kind: schema.TypeKindObject,
-					Fields: []*schema.Field{
-						{Name: "a", Type: schema.NamedType("String")},
-					},
+					Name:   "Query",
+					Kind:   schema.TypeKindObject,
+					Fields: schema.NewFieldMap(&schema.Field{Name: "a", Type: schema.NamedType("String")}),
 				},
 				"String": {Name: "String", Kind: schema.TypeKindScalar},
 			},
@@ -293,11 +287,9 @@ func TestCompleteValue_Leaf_Serialization_Result(t *testing.T) {
 			QueryType: "Query",
 			Types: map[string]*schema.Type{
 				"Query": {
-					Name: "Query",
-					Kind: schema.TypeKindObject,
-					Fields: []*schema.Field{
-						{Name: "a", Type: schema.NamedType("String")},
-					},
+					Name:   "Query",
+					Kind:   schema.TypeKindObject,
+					Fields: schema.NewFieldMap(&schema.Field{Name: "a", Type: schema.NamedType("String")}),
 				},
 				"String": {Name: "String", Kind: schema.TypeKindScalar},
 			},
@@ -331,15 +323,15 @@ func TestCompleteValue_Object_And_MixedSyncAsync_Result(t *testing.T) {
 			"Query": {
 				Name:   "Query",
 				Kind:   schema.TypeKindObject,
-				Fields: []*schema.Field{{Name: "obj", Type: schema.NamedType("Obj")}},
+				Fields: schema.NewFieldMap(&schema.Field{Name: "obj", Type: schema.NamedType("Obj")}),
 			},
 			"Obj": {
 				Name: "Obj",
 				Kind: schema.TypeKindObject,
-				Fields: []*schema.Field{
-					{Name: "a", Type: schema.NamedType("String"), Async: false},
-					{Name: "b", Type: schema.NamedType("String"), Async: true},
-				},
+				Fields: schema.NewFieldMap(
+					&schema.Field{Name: "a", Type: schema.NamedType("String"), Async: false},
+					&schema.Field{Name: "b", Type: schema.NamedType("String"), Async: true},
+				),
 			},
 			"String": {Name: "String", Kind: schema.TypeKindScalar},
 		},
@@ -381,9 +373,18 @@ func TestCompleteValue_Abstract_ResolveType_Result(t *testing.T) {
 		sch := &schema.Schema{
 			QueryType: "Query",
 			Types: map[string]*schema.Type{
-				"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "iface", Type: schema.NamedType("Node")}}},
-				"Node":   {Name: "Node", Kind: schema.TypeKindInterface, PossibleTypes: []string{"Obj"}},
-				"Obj":    {Name: "Obj", Kind: schema.TypeKindObject, Interfaces: []string{"Node"}, Fields: []*schema.Field{{Name: "a", Type: schema.NamedType("String")}}},
+				"Query": {
+					Name:   "Query",
+					Kind:   schema.TypeKindObject,
+					Fields: schema.NewFieldMap(&schema.Field{Name: "iface", Type: schema.NamedType("Node")}),
+				},
+				"Node": {Name: "Node", Kind: schema.TypeKindInterface, PossibleTypes: []string{"Obj"}},
+				"Obj": {
+					Name:       "Obj",
+					Kind:       schema.TypeKindObject,
+					Interfaces: []string{"Node"},
+					Fields:     schema.NewFieldMap(&schema.Field{Name: "a", Type: schema.NamedType("String")}),
+				},
 				"String": {Name: "String", Kind: schema.TypeKindScalar},
 			},
 		}
@@ -419,9 +420,18 @@ func TestCompleteValue_Abstract_ResolveType_Result(t *testing.T) {
 		sch := &schema.Schema{
 			QueryType: "Query",
 			Types: map[string]*schema.Type{
-				"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "iface", Type: schema.NamedType("Node")}}},
-				"Node":   {Name: "Node", Kind: schema.TypeKindInterface, PossibleTypes: []string{"Obj"}},
-				"Obj":    {Name: "Obj", Kind: schema.TypeKindObject, Interfaces: []string{"Node"}, Fields: []*schema.Field{{Name: "a", Type: schema.NamedType("String")}}},
+				"Query": {
+					Name:   "Query",
+					Kind:   schema.TypeKindObject,
+					Fields: schema.NewFieldMap(&schema.Field{Name: "iface", Type: schema.NamedType("Node")}),
+				},
+				"Node": {Name: "Node", Kind: schema.TypeKindInterface, PossibleTypes: []string{"Obj"}},
+				"Obj": {
+					Name:       "Obj",
+					Kind:       schema.TypeKindObject,
+					Interfaces: []string{"Node"},
+					Fields:     schema.NewFieldMap(&schema.Field{Name: "a", Type: schema.NamedType("String")}),
+				},
 				"String": {Name: "String", Kind: schema.TypeKindScalar},
 			},
 		}
@@ -453,9 +463,18 @@ func TestCompleteValue_Abstract_ResolveType_Result(t *testing.T) {
 		sch := &schema.Schema{
 			QueryType: "Query",
 			Types: map[string]*schema.Type{
-				"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "iface", Type: schema.NamedType("Node")}}},
-				"Node":   {Name: "Node", Kind: schema.TypeKindInterface, PossibleTypes: []string{"Obj"}},
-				"Obj":    {Name: "Obj", Kind: schema.TypeKindObject, Interfaces: []string{"Node"}, Fields: []*schema.Field{{Name: "a", Type: schema.NamedType("String")}}},
+				"Query": {
+					Name:   "Query",
+					Kind:   schema.TypeKindObject,
+					Fields: schema.NewFieldMap(&schema.Field{Name: "iface", Type: schema.NamedType("Node")}),
+				},
+				"Node": {Name: "Node", Kind: schema.TypeKindInterface, PossibleTypes: []string{"Obj"}},
+				"Obj": {
+					Name:       "Obj",
+					Kind:       schema.TypeKindObject,
+					Interfaces: []string{"Node"},
+					Fields:     schema.NewFieldMap(&schema.Field{Name: "a", Type: schema.NamedType("String")}),
+				},
 				"String": {Name: "String", Kind: schema.TypeKindScalar},
 			},
 		}

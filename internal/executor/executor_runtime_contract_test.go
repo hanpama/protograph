@@ -14,7 +14,10 @@ func TestRuntimeContract_Routing_SyncVsBatch_Calls(t *testing.T) {
 	sch := &schema.Schema{
 		QueryType: "Query",
 		Types: map[string]*schema.Type{
-			"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "a", Type: schema.NamedType("String")}, {Name: "b", Type: schema.NamedType("String"), Async: true}}},
+			"Query": {Name: "Query", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(
+				&schema.Field{Name: "a", Type: schema.NamedType("String")},
+				&schema.Field{Name: "b", Type: schema.NamedType("String"), Async: true},
+			)},
 			"String": {Name: "String", Kind: schema.TypeKindScalar},
 		},
 	}
@@ -42,8 +45,12 @@ func TestRuntimeContract_PayloadTransparency_Calls(t *testing.T) {
 	sch := &schema.Schema{
 		QueryType: "Query",
 		Types: map[string]*schema.Type{
-			"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "obj", Type: schema.NamedType("Obj")}}},
-			"Obj":    {Name: "Obj", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "a", Type: schema.NamedType("String"), Arguments: []*schema.InputValue{{Name: "arg", Type: schema.NamedType("String")}}}}},
+			"Query": {Name: "Query", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(&schema.Field{Name: "obj", Type: schema.NamedType("Obj")})},
+			"Obj": {
+				Name:   "Obj",
+				Kind:   schema.TypeKindObject,
+				Fields: schema.NewFieldMap(&schema.Field{Name: "a", Type: schema.NamedType("String"), Arguments: schema.NewInputValueMap(&schema.InputValue{Name: "arg", Type: schema.NamedType("String")})}),
+			},
 			"String": {Name: "String", Kind: schema.TypeKindScalar},
 		},
 	}
@@ -71,7 +78,10 @@ func TestRuntimeContract_BatchBoundary_SingleBatchPerDepth_Calls(t *testing.T) {
 	sch := &schema.Schema{
 		QueryType: "Query",
 		Types: map[string]*schema.Type{
-			"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "a", Type: schema.NamedType("String"), Async: true}, {Name: "b", Type: schema.NamedType("String"), Async: true}}},
+			"Query": {Name: "Query", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(
+				&schema.Field{Name: "a", Type: schema.NamedType("String"), Async: true},
+				&schema.Field{Name: "b", Type: schema.NamedType("String"), Async: true},
+			)},
 			"String": {Name: "String", Kind: schema.TypeKindScalar},
 		},
 	}
@@ -99,9 +109,14 @@ func TestRuntimeContract_HookInvocation_Serialize_ResolveType_CallsAndResult(t *
 	sch := &schema.Schema{
 		QueryType: "Query",
 		Types: map[string]*schema.Type{
-			"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "iface", Type: schema.NamedType("Node")}}},
-			"Node":   {Name: "Node", Kind: schema.TypeKindInterface, PossibleTypes: []string{"Obj"}},
-			"Obj":    {Name: "Obj", Kind: schema.TypeKindObject, Interfaces: []string{"Node"}, Fields: []*schema.Field{{Name: "a", Type: schema.NamedType("String")}}},
+			"Query": {Name: "Query", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(&schema.Field{Name: "iface", Type: schema.NamedType("Node")})},
+			"Node":  {Name: "Node", Kind: schema.TypeKindInterface, PossibleTypes: []string{"Obj"}},
+			"Obj": {
+				Name:       "Obj",
+				Kind:       schema.TypeKindObject,
+				Interfaces: []string{"Node"},
+				Fields:     schema.NewFieldMap(&schema.Field{Name: "a", Type: schema.NamedType("String")}),
+			},
 			"String": {Name: "String", Kind: schema.TypeKindScalar},
 		},
 	}
@@ -142,7 +157,10 @@ func TestRuntimeContract_CancellationTimeouts_PartialFailure_CallsAndResult(t *t
 	sch := &schema.Schema{
 		QueryType: "Query",
 		Types: map[string]*schema.Type{
-			"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "a", Type: schema.NamedType("String"), Async: true}, {Name: "b", Type: schema.NamedType("String"), Async: true}}},
+			"Query": {Name: "Query", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(
+				&schema.Field{Name: "a", Type: schema.NamedType("String"), Async: true},
+				&schema.Field{Name: "b", Type: schema.NamedType("String"), Async: true},
+			)},
 			"String": {Name: "String", Kind: schema.TypeKindScalar},
 		},
 	}

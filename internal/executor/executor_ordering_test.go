@@ -16,11 +16,11 @@ func TestOrdering_FieldOutput_Order_Result(t *testing.T) {
 			"Query": {
 				Name: "Query",
 				Kind: schema.TypeKindObject,
-				Fields: []*schema.Field{
-					{Name: "a", Type: schema.NamedType("String"), Async: false},
-					{Name: "b", Type: schema.NamedType("String"), Async: true},
-					{Name: "c", Type: schema.NamedType("String"), Async: false},
-				},
+				Fields: schema.NewFieldMap(
+					&schema.Field{Name: "a", Type: schema.NamedType("String"), Async: false},
+					&schema.Field{Name: "b", Type: schema.NamedType("String"), Async: true},
+					&schema.Field{Name: "c", Type: schema.NamedType("String"), Async: false},
+				),
 			},
 			"String": {Name: "String", Kind: schema.TypeKindScalar},
 		},
@@ -56,9 +56,12 @@ func TestOrdering_FragmentMerge_DuplicateFields_Result(t *testing.T) {
 	sch := &schema.Schema{
 		QueryType: "Query",
 		Types: map[string]*schema.Type{
-			"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "obj", Type: schema.NamedType("Obj")}}},
-			"Obj":    {Name: "Obj", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "a", Type: schema.NamedType("Sub")}}},
-			"Sub":    {Name: "Sub", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "x", Type: schema.NamedType("String")}, {Name: "y", Type: schema.NamedType("String")}}},
+			"Query": {Name: "Query", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(&schema.Field{Name: "obj", Type: schema.NamedType("Obj")})},
+			"Obj":   {Name: "Obj", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(&schema.Field{Name: "a", Type: schema.NamedType("Sub")})},
+			"Sub": {Name: "Sub", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(
+				&schema.Field{Name: "x", Type: schema.NamedType("String")},
+				&schema.Field{Name: "y", Type: schema.NamedType("String")},
+			)},
 			"String": {Name: "String", Kind: schema.TypeKindScalar},
 		},
 	}
