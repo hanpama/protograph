@@ -12,20 +12,14 @@ import (
 // Pattern: Calls comparison + Result comparison via go-cmp snapshot workflow
 func TestRouting_IsAsync_SyncVsAsync_Calls(t *testing.T) {
 	// 1) 스키마 정의: Query { a: String (sync), b: String (async) }
-	sch := &schema.Schema{
-		QueryType: "Query",
-		Types: map[string]*schema.Type{
-			"Query": {
-				Name: "Query",
-				Kind: schema.TypeKindObject,
-				Fields: schema.NewFieldMap(
-					&schema.Field{Name: "a", Type: schema.NamedType("String"), Async: false},
-					&schema.Field{Name: "b", Type: schema.NamedType("String"), Async: true},
-				),
-			},
-			"String": {Name: "String", Kind: schema.TypeKindScalar},
-		},
-	}
+	sch := newSchemaWithQueryType(
+		newObjectType(
+			"Query",
+			schema.NewField("a", "", schema.NamedType("String")),
+			schema.NewField("b", "", schema.NamedType("String")).SetAsync(true),
+		),
+		newScalarType("String"),
+	)
 
 	// 2) Mock Runtime 정의
 	rt := executor.NewMockRuntime(map[string]executor.MockResolver{
@@ -68,20 +62,14 @@ func TestRouting_IsAsync_SyncVsAsync_Calls(t *testing.T) {
 func TestRouting_DepthWiseBatch_Invariants_Calls(t *testing.T) {
 	// d=1: same-depth async fields aggregated into one batch
 	// Schema: type Query { a: String @async, b: String @async }
-	sch := &schema.Schema{
-		QueryType: "Query",
-		Types: map[string]*schema.Type{
-			"Query": {
-				Name: "Query",
-				Kind: schema.TypeKindObject,
-				Fields: schema.NewFieldMap(
-					&schema.Field{Name: "a", Type: schema.NamedType("String"), Async: true},
-					&schema.Field{Name: "b", Type: schema.NamedType("String"), Async: true},
-				),
-			},
-			"String": {Name: "String", Kind: schema.TypeKindScalar},
-		},
-	}
+	sch := newSchemaWithQueryType(
+		newObjectType(
+			"Query",
+			schema.NewField("a", "", schema.NamedType("String")).SetAsync(true),
+			schema.NewField("b", "", schema.NamedType("String")).SetAsync(true),
+		),
+		newScalarType("String"),
+	)
 
 	rt := executor.NewMockRuntime(map[string]executor.MockResolver{
 		"Query.a": executor.NewMockValueResolver("A"),
@@ -114,14 +102,13 @@ func TestRouting_DepthWiseBatch_Invariants_Calls(t *testing.T) {
 	// Schema:
 	//   type Query { root: Node @async }
 	//   type Node  { x: String @async }
-	sch2 := &schema.Schema{
-		QueryType: "Query",
-		Types: map[string]*schema.Type{
-			"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(&schema.Field{Name: "root", Type: schema.NamedType("Node"), Async: true})},
-			"Node":   {Name: "Node", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(&schema.Field{Name: "x", Type: schema.NamedType("String"), Async: true})},
-			"String": {Name: "String", Kind: schema.TypeKindScalar},
-		},
-	}
+	sch2 := newSchemaWithQueryType(
+		schema.NewType("Query", schema.TypeKindObject, "").
+			AddField(schema.NewField("root", "", schema.NamedType("Node")).SetAsync(true)),
+		schema.NewType("Node", schema.TypeKindObject, "").
+			AddField(schema.NewField("x", "", schema.NamedType("String")).SetAsync(true)),
+		newScalarType("String"),
+	)
 	rt2 := executor.NewMockRuntime(map[string]executor.MockResolver{
 		"Query.root": func(ctx context.Context, src any, args map[string]any) (any, error) {
 			return map[string]any{"id": "r"}, nil
@@ -153,17 +140,16 @@ func TestRouting_DepthWiseBatch_Invariants_Calls(t *testing.T) {
 	// Schema:
 	//   type Query { root: Node @async }
 	//   type Node  { child: Node @async, x: String @async }
-	sch3 := &schema.Schema{
-		QueryType: "Query",
-		Types: map[string]*schema.Type{
-			"Query": {Name: "Query", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(&schema.Field{Name: "root", Type: schema.NamedType("Node"), Async: true})},
-			"Node": {Name: "Node", Kind: schema.TypeKindObject, Fields: schema.NewFieldMap(
-				&schema.Field{Name: "child", Type: schema.NamedType("Node"), Async: true},
-				&schema.Field{Name: "x", Type: schema.NamedType("String"), Async: true},
-			)},
-			"String": {Name: "String", Kind: schema.TypeKindScalar},
-		},
-	}
+	nodeType := schema.NewType("Node", schema.TypeKindObject, "")
+	nodeType.AddField(schema.NewField("child", "", schema.NamedType("Node")).SetAsync(true))
+	nodeType.AddField(schema.NewField("x", "", schema.NamedType("String")).SetAsync(true))
+
+	sch3 := newSchemaWithQueryType(
+		schema.NewType("Query", schema.TypeKindObject, "").
+			AddField(schema.NewField("root", "", schema.NamedType("Node")).SetAsync(true)),
+		nodeType,
+		newScalarType("String"),
+	)
 	rt3 := executor.NewMockRuntime(map[string]executor.MockResolver{
 		"Query.root": func(ctx context.Context, src any, args map[string]any) (any, error) {
 			return map[string]any{"id": "r"}, nil

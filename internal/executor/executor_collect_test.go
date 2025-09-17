@@ -11,19 +11,10 @@ import (
 // Pattern: Result comparison
 func TestCollectFields_And_Directives_Result(t *testing.T) {
 	t.Run("Fragment merging and typename", func(t *testing.T) {
-		sch := &schema.Schema{
-			QueryType: "Query",
-			Types: map[string]*schema.Type{
-				"Query": {
-					Name: "Query",
-					Kind: schema.TypeKindObject,
-					Fields: map[string]*schema.Field{
-						"a": {Name: "a", Type: schema.NamedType("String"), Index: 0},
-					},
-				},
-				"String": {Name: "String", Kind: schema.TypeKindScalar},
-			},
-		}
+		sch := newSchemaWithQueryType(
+			newObjectType("Query", schema.NewField("a", "", schema.NamedType("String"))),
+			newScalarType("String"),
+		)
 		doc := mustParseQuery(t, `{
                         a
                         ...F1
@@ -48,21 +39,15 @@ func TestCollectFields_And_Directives_Result(t *testing.T) {
 	})
 
 	t.Run("Directives on scalar", func(t *testing.T) {
-		sch := &schema.Schema{
-			QueryType: "Query",
-			Types: map[string]*schema.Type{
-				"Query": {
-					Name: "Query",
-					Kind: schema.TypeKindObject,
-					Fields: map[string]*schema.Field{
-						"a": {Name: "a", Type: schema.NamedType("String"), Index: 0},
-						"b": {Name: "b", Type: schema.NamedType("String"), Index: 1},
-						"c": {Name: "c", Type: schema.NamedType("String"), Index: 2},
-					},
-				},
-				"String": {Name: "String", Kind: schema.TypeKindScalar},
-			},
-		}
+		sch := newSchemaWithQueryType(
+			newObjectType(
+				"Query",
+				schema.NewField("a", "", schema.NamedType("String")),
+				schema.NewField("b", "", schema.NamedType("String")),
+				schema.NewField("c", "", schema.NamedType("String")),
+			),
+			newScalarType("String"),
+		)
 		doc := mustParseQuery(t, `{ a b @skip(if: true) c @include(if: false) }`)
 		state := &executionState{schema: sch, document: doc, variableValues: map[string]any{}}
 		got := collectFields(state, sch.Types["Query"], doc.Operations[0].SelectionSet).orderedFields()
@@ -75,21 +60,15 @@ func TestCollectFields_And_Directives_Result(t *testing.T) {
 	})
 
 	t.Run("Directives on fragment spread", func(t *testing.T) {
-		sch := &schema.Schema{
-			QueryType: "Query",
-			Types: map[string]*schema.Type{
-				"Query": {
-					Name: "Query",
-					Kind: schema.TypeKindObject,
-					Fields: map[string]*schema.Field{
-						"a": {Name: "a", Type: schema.NamedType("String"), Index: 0},
-						"b": {Name: "b", Type: schema.NamedType("String"), Index: 1},
-						"c": {Name: "c", Type: schema.NamedType("String"), Index: 2},
-					},
-				},
-				"String": {Name: "String", Kind: schema.TypeKindScalar},
-			},
-		}
+		sch := newSchemaWithQueryType(
+			newObjectType(
+				"Query",
+				schema.NewField("a", "", schema.NamedType("String")),
+				schema.NewField("b", "", schema.NamedType("String")),
+				schema.NewField("c", "", schema.NamedType("String")),
+			),
+			newScalarType("String"),
+		)
 		doc := mustParseQuery(t, `{
                         a
                         ...Frag1 @include(if: true)
@@ -113,21 +92,15 @@ func TestCollectFields_And_Directives_Result(t *testing.T) {
 	})
 
 	t.Run("Directives on inline fragment", func(t *testing.T) {
-		sch := &schema.Schema{
-			QueryType: "Query",
-			Types: map[string]*schema.Type{
-				"Query": {
-					Name: "Query",
-					Kind: schema.TypeKindObject,
-					Fields: map[string]*schema.Field{
-						"a": {Name: "a", Type: schema.NamedType("String"), Index: 0},
-						"b": {Name: "b", Type: schema.NamedType("String"), Index: 1},
-						"c": {Name: "c", Type: schema.NamedType("String"), Index: 2},
-					},
-				},
-				"String": {Name: "String", Kind: schema.TypeKindScalar},
-			},
-		}
+		sch := newSchemaWithQueryType(
+			newObjectType(
+				"Query",
+				schema.NewField("a", "", schema.NamedType("String")),
+				schema.NewField("b", "", schema.NamedType("String")),
+				schema.NewField("c", "", schema.NamedType("String")),
+			),
+			newScalarType("String"),
+		)
 		doc := mustParseQuery(t, `{
                         a
                         ... on Query @include(if: true) { b }
@@ -148,21 +121,15 @@ func TestCollectFields_And_Directives_Result(t *testing.T) {
 	})
 
 	t.Run("Directives on anonymous inline fragment", func(t *testing.T) {
-		sch := &schema.Schema{
-			QueryType: "Query",
-			Types: map[string]*schema.Type{
-				"Query": {
-					Name: "Query",
-					Kind: schema.TypeKindObject,
-					Fields: schema.NewFieldMap(
-						&schema.Field{Name: "a", Type: schema.NamedType("String")},
-						&schema.Field{Name: "b", Type: schema.NamedType("String")},
-						&schema.Field{Name: "c", Type: schema.NamedType("String")},
-					),
-				},
-				"String": {Name: "String", Kind: schema.TypeKindScalar},
-			},
-		}
+		sch := newSchemaWithQueryType(
+			newObjectType(
+				"Query",
+				schema.NewField("a", "", schema.NamedType("String")),
+				schema.NewField("b", "", schema.NamedType("String")),
+				schema.NewField("c", "", schema.NamedType("String")),
+			),
+			newScalarType("String"),
+		)
 		doc := mustParseQuery(t, `{
                         a
                         ... @include(if: true) { b }
