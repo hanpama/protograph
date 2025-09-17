@@ -60,13 +60,7 @@ func coerceArgumentValues(
 ) map[string]any {
 	coerced := make(map[string]any)
 	for _, arg := range arguments {
-		var argDef *schema.InputValue
-		for _, a := range fieldDef.Arguments {
-			if a.Name == arg.Name {
-				argDef = a
-				break
-			}
-		}
+		argDef := fieldDef.Argument(arg.Name)
 		if argDef == nil {
 			continue
 		}
@@ -78,7 +72,7 @@ func coerceArgumentValues(
 		}
 		coerced[arg.Name] = cv
 	}
-	for _, argDef := range fieldDef.Arguments {
+	for _, argDef := range fieldDef.GetOrderedArguments() {
 		name := argDef.Name
 		if _, ok := coerced[name]; !ok {
 			if argDef.DefaultValue != nil {

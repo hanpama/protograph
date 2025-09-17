@@ -11,13 +11,14 @@ import (
 
 // Pattern: Calls comparison
 func TestRuntimeContract_Routing_SyncVsBatch_Calls(t *testing.T) {
-	sch := &schema.Schema{
-		QueryType: "Query",
-		Types: map[string]*schema.Type{
-			"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "a", Type: schema.NamedType("String")}, {Name: "b", Type: schema.NamedType("String"), Async: true}}},
-			"String": {Name: "String", Kind: schema.TypeKindScalar},
-		},
-	}
+	sch := newSchemaWithQueryType(
+		newObjectType(
+			"Query",
+			schema.NewField("a", "", schema.NamedType("String")),
+			schema.NewField("b", "", schema.NamedType("String")).SetAsync(true),
+		),
+		newScalarType("String"),
+	)
 	rt := NewMockRuntime(map[string]MockResolver{
 		"Query.a": NewMockValueResolver("A"),
 		"Query.b": NewMockValueResolver("B"),
@@ -39,14 +40,15 @@ func TestRuntimeContract_Routing_SyncVsBatch_Calls(t *testing.T) {
 
 // Pattern: Calls comparison
 func TestRuntimeContract_PayloadTransparency_Calls(t *testing.T) {
-	sch := &schema.Schema{
-		QueryType: "Query",
-		Types: map[string]*schema.Type{
-			"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "obj", Type: schema.NamedType("Obj")}}},
-			"Obj":    {Name: "Obj", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "a", Type: schema.NamedType("String"), Arguments: []*schema.InputValue{{Name: "arg", Type: schema.NamedType("String")}}}}},
-			"String": {Name: "String", Kind: schema.TypeKindScalar},
-		},
-	}
+	sch := newSchemaWithQueryType(
+		newObjectType("Query", schema.NewField("obj", "", schema.NamedType("Obj"))),
+		newObjectType(
+			"Obj",
+			schema.NewField("a", "", schema.NamedType("String")).
+				AddArgument(schema.NewInputValue("arg", "", schema.NamedType("String"))),
+		),
+		newScalarType("String"),
+	)
 	rt := NewMockRuntime(map[string]MockResolver{
 		"Query.obj": NewMockValueResolver(map[string]any{"token": "root"}),
 		"Obj.a":     func(ctx context.Context, src any, args map[string]any) (any, error) { return "A", nil },
@@ -68,13 +70,14 @@ func TestRuntimeContract_PayloadTransparency_Calls(t *testing.T) {
 
 // Pattern: Calls comparison
 func TestRuntimeContract_BatchBoundary_SingleBatchPerDepth_Calls(t *testing.T) {
-	sch := &schema.Schema{
-		QueryType: "Query",
-		Types: map[string]*schema.Type{
-			"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "a", Type: schema.NamedType("String"), Async: true}, {Name: "b", Type: schema.NamedType("String"), Async: true}}},
-			"String": {Name: "String", Kind: schema.TypeKindScalar},
-		},
-	}
+	sch := newSchemaWithQueryType(
+		newObjectType(
+			"Query",
+			schema.NewField("a", "", schema.NamedType("String")).SetAsync(true),
+			schema.NewField("b", "", schema.NamedType("String")).SetAsync(true),
+		),
+		newScalarType("String"),
+	)
 	rt := NewMockRuntime(map[string]MockResolver{
 		"Query.a": NewMockValueResolver("A"),
 		"Query.b": NewMockValueResolver("B"),
@@ -96,15 +99,16 @@ func TestRuntimeContract_BatchBoundary_SingleBatchPerDepth_Calls(t *testing.T) {
 
 // Pattern: Calls + Result comparison
 func TestRuntimeContract_HookInvocation_Serialize_ResolveType_CallsAndResult(t *testing.T) {
-	sch := &schema.Schema{
-		QueryType: "Query",
-		Types: map[string]*schema.Type{
-			"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "iface", Type: schema.NamedType("Node")}}},
-			"Node":   {Name: "Node", Kind: schema.TypeKindInterface, PossibleTypes: []string{"Obj"}},
-			"Obj":    {Name: "Obj", Kind: schema.TypeKindObject, Interfaces: []string{"Node"}, Fields: []*schema.Field{{Name: "a", Type: schema.NamedType("String")}}},
-			"String": {Name: "String", Kind: schema.TypeKindScalar},
-		},
-	}
+	nodeType := schema.NewType("Node", schema.TypeKindInterface, "").AddPossibleType("Obj")
+	objType := newObjectType("Obj", schema.NewField("a", "", schema.NamedType("String")))
+	objType.AddInterface("Node")
+
+	sch := newSchemaWithQueryType(
+		newObjectType("Query", schema.NewField("iface", "", schema.NamedType("Node"))),
+		nodeType,
+		objType,
+		newScalarType("String"),
+	)
 	rt := NewMockRuntime(map[string]MockResolver{
 		"Query.iface": NewMockValueResolver(map[string]any{}),
 		"Obj.a":       NewMockValueResolver("A"),
@@ -139,13 +143,14 @@ func TestRuntimeContract_HookInvocation_Serialize_ResolveType_CallsAndResult(t *
 
 // Pattern: Calls + Result comparison
 func TestRuntimeContract_CancellationTimeouts_PartialFailure_CallsAndResult(t *testing.T) {
-	sch := &schema.Schema{
-		QueryType: "Query",
-		Types: map[string]*schema.Type{
-			"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "a", Type: schema.NamedType("String"), Async: true}, {Name: "b", Type: schema.NamedType("String"), Async: true}}},
-			"String": {Name: "String", Kind: schema.TypeKindScalar},
-		},
-	}
+	sch := newSchemaWithQueryType(
+		newObjectType(
+			"Query",
+			schema.NewField("a", "", schema.NamedType("String")).SetAsync(true),
+			schema.NewField("b", "", schema.NamedType("String")).SetAsync(true),
+		),
+		newScalarType("String"),
+	)
 	rt := NewMockRuntime(map[string]MockResolver{
 		"Query.a": NewMockErrorResolver(fmt.Errorf("boom")),
 		"Query.b": NewMockValueResolver("B"),

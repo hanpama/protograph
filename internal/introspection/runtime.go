@@ -134,7 +134,7 @@ func resolveTypeFields(t *schema.Type, args map[string]any) []*schema.Field {
 	}
 	includeDeprecated := boolArg(args, "includeDeprecated", false)
 	out := []*schema.Field{}
-	for _, f := range t.Fields {
+	for _, f := range t.GetOrderedFields() {
 		if !includeDeprecated && f.IsDeprecated {
 			continue
 		}
@@ -194,7 +194,7 @@ func resolveTypeInputFields(t *schema.Type, args map[string]any) []*schema.Input
 	}
 	includeDeprecated := boolArg(args, "includeDeprecated", false)
 	out := []*schema.InputValue{}
-	for _, iv := range t.InputFields {
+	for _, iv := range t.GetOrderedInputFields() {
 		if !includeDeprecated && iv.IsDeprecated {
 			continue
 		}
@@ -207,7 +207,7 @@ func resolveTypeInputFields(t *schema.Type, args map[string]any) []*schema.Input
 func resolveFieldArgs(f *schema.Field, args map[string]any) []*schema.InputValue {
 	includeDeprecated := boolArg(args, "includeDeprecated", false)
 	out := []*schema.InputValue{}
-	for _, a := range f.Arguments {
+	for _, a := range f.GetOrderedArguments() {
 		if !includeDeprecated && a.IsDeprecated {
 			continue
 		}

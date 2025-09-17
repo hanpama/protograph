@@ -12,13 +12,10 @@ import (
 // Pattern: Result comparison
 func TestErrors_LocatedPaths_Result(t *testing.T) {
 	t.Run("Simple", func(t *testing.T) {
-		sch := &schema.Schema{
-			QueryType: "Query",
-			Types: map[string]*schema.Type{
-				"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "a", Type: schema.NamedType("String")}}},
-				"String": {Name: "String", Kind: schema.TypeKindScalar},
-			},
-		}
+		sch := newSchemaWithQueryType(
+			newObjectType("Query", schema.NewField("a", "", schema.NamedType("String"))),
+			newScalarType("String"),
+		)
 		rt := NewMockRuntime(map[string]MockResolver{
 			"Query.a": NewMockErrorResolver(fmt.Errorf("boom")),
 		})
@@ -37,14 +34,11 @@ func TestErrors_LocatedPaths_Result(t *testing.T) {
 	})
 
 	t.Run("Nested", func(t *testing.T) {
-		sch := &schema.Schema{
-			QueryType: "Query",
-			Types: map[string]*schema.Type{
-				"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "obj", Type: schema.NamedType("Obj")}}},
-				"Obj":    {Name: "Obj", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "a", Type: schema.NamedType("String")}}},
-				"String": {Name: "String", Kind: schema.TypeKindScalar},
-			},
-		}
+		sch := newSchemaWithQueryType(
+			newObjectType("Query", schema.NewField("obj", "", schema.NamedType("Obj"))),
+			newObjectType("Obj", schema.NewField("a", "", schema.NamedType("String"))),
+			newScalarType("String"),
+		)
 		rt := NewMockRuntime(map[string]MockResolver{
 			"Query.obj": NewMockValueResolver(map[string]any{}),
 			"Obj.a":     NewMockErrorResolver(fmt.Errorf("boom")),
@@ -64,14 +58,11 @@ func TestErrors_LocatedPaths_Result(t *testing.T) {
 	})
 
 	t.Run("List index in path", func(t *testing.T) {
-		sch := &schema.Schema{
-			QueryType: "Query",
-			Types: map[string]*schema.Type{
-				"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "objs", Type: schema.ListType(schema.NamedType("Obj"))}}},
-				"Obj":    {Name: "Obj", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "a", Type: schema.NamedType("String")}}},
-				"String": {Name: "String", Kind: schema.TypeKindScalar},
-			},
-		}
+		sch := newSchemaWithQueryType(
+			newObjectType("Query", schema.NewField("objs", "", schema.ListType(schema.NamedType("Obj")))),
+			newObjectType("Obj", schema.NewField("a", "", schema.NamedType("String"))),
+			newScalarType("String"),
+		)
 		rt := NewMockRuntime(map[string]MockResolver{
 			"Query.objs": NewMockValueResolver([]any{map[string]any{"idx": 0}, map[string]any{"idx": 1}}),
 			"Obj.a": func(ctx context.Context, src any, args map[string]any) (any, error) {

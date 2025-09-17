@@ -120,7 +120,7 @@ func renderInputObject(b *strings.Builder, typ *Type) {
 		b.WriteString(" @oneOf")
 	}
 	b.WriteString(" {\n")
-	for _, field := range typ.InputFields {
+	for _, field := range typ.GetOrderedInputFields() {
 		renderDescription(b, field.Description)
 		b.WriteString("  ")
 		b.WriteString(field.Name)
@@ -157,7 +157,7 @@ func renderObject(b *strings.Builder, typ *Type) {
 		}
 	}
 	b.WriteString(" {\n")
-	for _, field := range typ.Fields {
+	for _, field := range typ.GetOrderedFields() {
 		renderField(b, field)
 	}
 	b.WriteString("}\n\n")
@@ -177,7 +177,7 @@ func renderInterface(b *strings.Builder, typ *Type) {
 		}
 	}
 	b.WriteString(" {\n")
-	for _, field := range typ.Fields {
+	for _, field := range typ.GetOrderedFields() {
 		renderField(b, field)
 	}
 	b.WriteString("}\n\n")
@@ -203,7 +203,7 @@ func renderField(b *strings.Builder, field *Field) {
 	b.WriteString(field.Name)
 	if len(field.Arguments) > 0 {
 		b.WriteString("(")
-		for i, arg := range field.Arguments {
+		for i, arg := range field.GetOrderedArguments() {
 			if i > 0 {
 				b.WriteString(", ")
 			}

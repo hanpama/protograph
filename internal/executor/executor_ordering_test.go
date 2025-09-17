@@ -10,21 +10,15 @@ import (
 
 // Pattern: Result comparison
 func TestOrdering_FieldOutput_Order_Result(t *testing.T) {
-	sch := &schema.Schema{
-		QueryType: "Query",
-		Types: map[string]*schema.Type{
-			"Query": {
-				Name: "Query",
-				Kind: schema.TypeKindObject,
-				Fields: []*schema.Field{
-					{Name: "a", Type: schema.NamedType("String"), Async: false},
-					{Name: "b", Type: schema.NamedType("String"), Async: true},
-					{Name: "c", Type: schema.NamedType("String"), Async: false},
-				},
-			},
-			"String": {Name: "String", Kind: schema.TypeKindScalar},
-		},
-	}
+	sch := schema.NewSchema("").
+		SetQueryType("Query").
+		AddType(newObjectType(
+			"Query",
+			schema.NewField("a", "", schema.NamedType("String")),
+			schema.NewField("b", "", schema.NamedType("String")).SetAsync(true),
+			schema.NewField("c", "", schema.NamedType("String")),
+		)).
+		AddType(schema.NewType("String", schema.TypeKindScalar, ""))
 	rt := NewMockRuntime(map[string]MockResolver{
 		"Query.a": NewMockValueResolver("A"),
 		"Query.b": NewMockValueResolver("B"),
@@ -53,15 +47,16 @@ func TestOrdering_FieldOutput_Order_Result(t *testing.T) {
 
 // Pattern: Result comparison
 func TestOrdering_FragmentMerge_DuplicateFields_Result(t *testing.T) {
-	sch := &schema.Schema{
-		QueryType: "Query",
-		Types: map[string]*schema.Type{
-			"Query":  {Name: "Query", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "obj", Type: schema.NamedType("Obj")}}},
-			"Obj":    {Name: "Obj", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "a", Type: schema.NamedType("Sub")}}},
-			"Sub":    {Name: "Sub", Kind: schema.TypeKindObject, Fields: []*schema.Field{{Name: "x", Type: schema.NamedType("String")}, {Name: "y", Type: schema.NamedType("String")}}},
-			"String": {Name: "String", Kind: schema.TypeKindScalar},
-		},
-	}
+	sch := schema.NewSchema("").
+		SetQueryType("Query").
+		AddType(newObjectType("Query", schema.NewField("obj", "", schema.NamedType("Obj")))).
+		AddType(newObjectType("Obj", schema.NewField("a", "", schema.NamedType("Sub")))).
+		AddType(newObjectType(
+			"Sub",
+			schema.NewField("x", "", schema.NamedType("String")),
+			schema.NewField("y", "", schema.NamedType("String")),
+		)).
+		AddType(schema.NewType("String", schema.TypeKindScalar, ""))
 	rt := NewMockRuntime(map[string]MockResolver{
 		"Query.obj": NewMockValueResolver(map[string]any{}),
 		"Obj.a":     NewMockValueResolver(map[string]any{}),
