@@ -2,6 +2,7 @@ package executor
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 
@@ -41,7 +42,7 @@ func coerceVariableValues(
 		if val == nil && t.NonNull {
 			return nil, fmt.Errorf("variable $%s of type %s cannot be null", name, t.String())
 		}
-		cv, err := coerceValue(val, typeRefFromAST(t))
+		cv, err := coerceValue(schema, val, typeRefFromAST(t))
 		if err != nil {
 			return nil, fmt.Errorf("variable $%s of type %s cannot be coerced: %v", name, t.String(), err)
 		}
@@ -65,7 +66,7 @@ func coerceArgumentValues(
 			continue
 		}
 		val := valueFromASTWithVars(arg.Value, variableValues)
-		cv, err := coerceValue(val, argDef.Type)
+		cv, err := coerceValue(state.schema, val, argDef.Type)
 		if err != nil {
 			state.addError(fmt.Sprintf("argument '%s' cannot be coerced: %v", arg.Name, err), path)
 			continue
@@ -143,13 +144,13 @@ func astValueToGo(value *language.Value) any {
 }
 
 // coerceValue coerces a value to the specified GraphQL type
-func coerceValue(value any, targetType *schema.TypeRef) (any, error) {
+func coerceValue(sch *schema.Schema, value any, targetType *schema.TypeRef) (any, error) {
 	// Handle Non-Null wrapper
 	if schema.IsNonNull(targetType) {
 		if value == nil {
 			return nil, fmt.Errorf("cannot provide null for non-null type")
 		}
-		return coerceValue(value, schema.Unwrap(targetType))
+		return coerceValue(sch, value, schema.Unwrap(targetType))
 	}
 
 	// Handle null for nullable types
@@ -159,7 +160,7 @@ func coerceValue(value any, targetType *schema.TypeRef) (any, error) {
 
 	// Handle List wrapper
 	if schema.IsList(targetType) {
-		return coerceListValue(value, targetType)
+		return coerceListValue(sch, value, targetType)
 	}
 
 	// Get the named type for scalar coercion
@@ -178,19 +179,27 @@ func coerceValue(value any, targetType *schema.TypeRef) (any, error) {
 	case "ID":
 		return coerceToID(value)
 	default:
+		if sch != nil {
+			if named := sch.Types[namedType]; named != nil {
+				switch named.Kind {
+				case schema.TypeKindInputObject:
+					return coerceInputObject(sch, value, named)
+				}
+			}
+		}
 		// For custom scalars and other types, return as-is
 		return value, nil
 	}
 }
 
 // coerceListValue coerces a value to a list
-func coerceListValue(value any, listType *schema.TypeRef) (any, error) {
+func coerceListValue(sch *schema.Schema, value any, listType *schema.TypeRef) (any, error) {
 	// If already a slice, coerce each item
 	if slice, ok := value.([]any); ok {
 		innerType := schema.Unwrap(listType)
 		coercedSlice := make([]any, len(slice))
 		for i, item := range slice {
-			coercedItem, err := coerceValue(item, innerType)
+			coercedItem, err := coerceValue(sch, item, innerType)
 			if err != nil {
 				return nil, err
 			}
@@ -201,11 +210,47 @@ func coerceListValue(value any, listType *schema.TypeRef) (any, error) {
 
 	// Single value becomes a list of one
 	innerType := schema.Unwrap(listType)
-	coercedItem, err := coerceValue(value, innerType)
+	coercedItem, err := coerceValue(sch, value, innerType)
 	if err != nil {
 		return nil, err
 	}
 	return []any{coercedItem}, nil
+}
+
+func coerceInputObject(sch *schema.Schema, value any, inputType *schema.Type) (any, error) {
+	obj, ok := value.(map[string]any)
+	if !ok {
+		return nil, fmt.Errorf("expected input object for type %s", inputType.Name)
+	}
+
+	coerced := make(map[string]any, len(obj))
+
+	for fieldName, fieldValue := range obj {
+		fieldDef := inputType.InputField(fieldName)
+		if fieldDef == nil {
+			return nil, fmt.Errorf("field '%s' is not defined for input object %s", fieldName, inputType.Name)
+		}
+		coercedValue, err := coerceValue(sch, fieldValue, fieldDef.Type)
+		if err != nil {
+			return nil, fmt.Errorf("field '%s': %w", fieldName, err)
+		}
+		coerced[fieldName] = coercedValue
+	}
+
+	for _, fieldDef := range inputType.GetOrderedInputFields() {
+		if _, ok := coerced[fieldDef.Name]; ok {
+			continue
+		}
+		if fieldDef.DefaultValue != nil {
+			coerced[fieldDef.Name] = fieldDef.DefaultValue
+			continue
+		}
+		if schema.IsNonNull(fieldDef.Type) {
+			return nil, fmt.Errorf("missing required field '%s'", fieldDef.Name)
+		}
+	}
+
+	return coerced, nil
 }
 
 // Basic scalar coercion functions - improved
@@ -218,13 +263,15 @@ func coerceToInt(value any) (any, error) {
 	case int64:
 		return int(v), nil
 	case float64:
+		if !isIntegralFloat64(v) {
+			return nil, fmt.Errorf("cannot coerce %v (%T) to int", value, value)
+		}
 		return int(v), nil
 	case float32:
-		return int(v), nil
-	case string:
-		if intVal, err := strconv.Atoi(v); err == nil {
-			return intVal, nil
+		if math.Trunc(float64(v)) != float64(v) {
+			return nil, fmt.Errorf("cannot coerce %v (%T) to int", value, value)
 		}
+		return int(v), nil
 	}
 	return nil, fmt.Errorf("cannot coerce %v (%T) to int", value, value)
 }
@@ -241,10 +288,6 @@ func coerceToFloat(value any) (any, error) {
 		return float64(v), nil
 	case int64:
 		return float64(v), nil
-	case string:
-		if floatVal, err := strconv.ParseFloat(v, 64); err == nil {
-			return floatVal, nil
-		}
 	}
 	return nil, fmt.Errorf("cannot coerce %v (%T) to float", value, value)
 }
@@ -253,7 +296,7 @@ func coerceToString(value any) (any, error) {
 	if v, ok := value.(string); ok {
 		return v, nil
 	}
-	return fmt.Sprintf("%v", value), nil
+	return nil, fmt.Errorf("cannot coerce %v (%T) to string", value, value)
 }
 
 func coerceToBoolean(value any) (any, error) {
@@ -273,7 +316,10 @@ func coerceToID(value any) (any, error) {
 		return strconv.FormatInt(int64(v), 10), nil
 	case int64:
 		return strconv.FormatInt(v, 10), nil
-	default:
-		return fmt.Sprintf("%v", value), nil
 	}
+	return nil, fmt.Errorf("cannot coerce %v (%T) to ID", value, value)
+}
+
+func isIntegralFloat64(v float64) bool {
+	return math.Trunc(v) == v
 }
