@@ -494,6 +494,12 @@ func TestInterfaceEnvelopeUnwrapsPayload(t *testing.T) {
 
 	msg, ok := res[0].Value.(protoreflect.Message)
 	require.True(t, ok, "expected message value")
-	require.Equal(t, "UserSource", string(msg.Descriptor().Name()))
-	require.Equal(t, "user-1", msg.Get(msg.Descriptor().Fields().ByName("id")).String())
+	require.Equal(t, "NodeSource", string(msg.Descriptor().Name()))
+
+	decoded, err := rt.ResolveInterfaceConcreteValue(context.Background(), "Node", msg)
+	require.NoError(t, err)
+	decodedMsg, ok := decoded.(protoreflect.Message)
+	require.True(t, ok, "expected decoded message")
+	require.Equal(t, "UserSource", string(decodedMsg.Descriptor().Name()))
+	require.Equal(t, "user-1", decodedMsg.Get(decodedMsg.Descriptor().Fields().ByName("id")).String())
 }

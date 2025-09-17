@@ -24,6 +24,14 @@ func (noopRuntime) ResolveType(context.Context, string, any) (string, error) {
 	return "", nil
 }
 
+func (noopRuntime) ResolveUnionConcreteValue(_ context.Context, _ string, value any) (any, error) {
+	return value, nil
+}
+
+func (noopRuntime) ResolveInterfaceConcreteValue(_ context.Context, _ string, value any) (any, error) {
+	return value, nil
+}
+
 func (noopRuntime) SerializeLeafValue(_ context.Context, _ string, value any) (any, error) {
 	return value, nil
 }

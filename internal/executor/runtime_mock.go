@@ -229,6 +229,16 @@ func (m *MockRuntime) ResolveType(ctx context.Context, abstractType string, valu
 	return m.typeResolver(value)
 }
 
+// ResolveUnionConcreteValue implements Runtime.ResolveUnionConcreteValue.
+func (m *MockRuntime) ResolveUnionConcreteValue(ctx context.Context, unionTypeName string, value any) (any, error) {
+	return value, nil
+}
+
+// ResolveInterfaceConcreteValue implements Runtime.ResolveInterfaceConcreteValue.
+func (m *MockRuntime) ResolveInterfaceConcreteValue(ctx context.Context, interfaceTypeName string, value any) (any, error) {
+	return value, nil
+}
+
 // SerializeLeafValue implements Runtime.SerializeLeafValue
 func (m *MockRuntime) SerializeLeafValue(ctx context.Context, scalarOrEnumTypeName string, value any) (any, error) {
 	if m.serializer == nil {

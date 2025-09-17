@@ -441,14 +441,7 @@ func (r *Runtime) handleValue(fd protoreflect.FieldDescriptor, v protoreflect.Va
 		}
 		return int32(v.Enum())
 	case protoreflect.MessageKind:
-		msg := v.Message()
-		if decoded := r.unwrapInterfaceEnvelope(msg); decoded != nil {
-			return decoded
-		}
-		if union := r.unwrapUnionEnvelope(msg); union != nil {
-			return union
-		}
-		return msg
+		return v.Message()
 	default:
 		return nil
 	}
@@ -466,6 +459,36 @@ func (r *Runtime) ResolveType(ctx context.Context, abstractType string, value an
 		return name[:len(name)-6], nil
 	}
 	return "", fmt.Errorf("cannot infer concrete type from message %s", name)
+}
+
+// ResolveUnionConcreteValue unwraps the union envelope into the concrete message, if applicable.
+func (r *Runtime) ResolveUnionConcreteValue(ctx context.Context, unionTypeName string, value any) (any, error) {
+	if value == nil {
+		return nil, nil
+	}
+	msg, ok := value.(protoreflect.Message)
+	if !ok || msg == nil {
+		return nil, fmt.Errorf("ResolveUnionConcreteValue expects protoreflect.Message, got %T", value)
+	}
+	if decoded := r.unwrapUnionEnvelope(msg); decoded != nil {
+		return decoded, nil
+	}
+	return msg, nil
+}
+
+// ResolveInterfaceConcreteValue unwraps the interface envelope into the concrete message, if applicable.
+func (r *Runtime) ResolveInterfaceConcreteValue(ctx context.Context, interfaceTypeName string, value any) (any, error) {
+	if value == nil {
+		return nil, nil
+	}
+	msg, ok := value.(protoreflect.Message)
+	if !ok || msg == nil {
+		return nil, fmt.Errorf("ResolveInterfaceConcreteValue expects protoreflect.Message, got %T", value)
+	}
+	if decoded := r.unwrapInterfaceEnvelope(msg); decoded != nil {
+		return decoded, nil
+	}
+	return msg, nil
 }
 
 // SerializeLeafValue serializes a scalar or enum value for transport over the wire.

@@ -88,6 +88,14 @@ type Runtime interface {
 	// provided schema; otherwise return an error.
 	ResolveType(ctx context.Context, abstractType string, value any) (string, error)
 
+	// ResolveUnionConcreteValue converts a union envelope value into its concrete
+	// representation prior to completion.
+	ResolveUnionConcreteValue(ctx context.Context, unionTypeName string, value any) (any, error)
+
+	// ResolveInterfaceConcreteValue converts an interface envelope value into its
+	// concrete representation prior to completion.
+	ResolveInterfaceConcreteValue(ctx context.Context, interfaceTypeName string, value any) (any, error)
+
 	// SerializeLeafValue serializes a scalar or enum value to a JSON-safe Go
 	// value according to the GraphQL schema and custom scalar mappings.
 	//

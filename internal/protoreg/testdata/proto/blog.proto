@@ -35,9 +35,9 @@ message PostSource {
 
 message SearchResultSource {
   oneof value {
-    UserSource User = 27303;
-
     PostSource Post = 23707;
+
+    UserSource User = 27303;
   }
 }
 
