@@ -10,11 +10,11 @@ message NodeSource {
 
 message SearchResultSource {
   oneof value {
-    PostSource Post = 23707;
-
     UserSource User = 27303;
 
     OrganizationSource Organization = 9145;
+
+    PostSource Post = 23707;
   }
 }
 

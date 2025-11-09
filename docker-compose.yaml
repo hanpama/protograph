@@ -21,7 +21,7 @@ services:
     environment:
       - OTEL_EXPORTER_OTLP_INSECURE=true
     command:
-      ["go", "run", "github.com/hanpama/protograph/cmd/protograph", "serve",
+      ["go", "run", ".", "serve",
        "-graphql.root", "tests/simple/graphql",
        "-graphql.rootpkg", "simple",
        "-transport.backend", "*=simple-grpc:50051",
